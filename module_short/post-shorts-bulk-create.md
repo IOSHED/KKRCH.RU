@@ -2,19 +2,19 @@
 
 ### <span style="background:#42A5F5;padding:5px">POST</span> `/shorts/{scope_шв:int}/bulk`
 
-|                      | Описание                                                                                    |
-|----------------------|---------------------------------------------------------------------------------------------|
-| **Назначение**       | Создаёт укороченные ссылки массово                                                          |
-| **Логика**           | 0. Если число элементов превышает лимит (`bulk.max_items`) → 400 `too_many_items_error`     |
-|                      | 1. Каждый элемент проходит независимую валидацию; невалидные → в `errors` с индексом        |
+|                      | Описание                                                                                                             |
+|----------------------|----------------------------------------------------------------------------------------------------------------------|
+| **Назначение**       | Создаёт укороченные ссылки массово                                                                                   |
+| **Логика**           | 0. Если число элементов превышает лимит (`bulk.max_items`) → 400 `too_many_items_error`                              |
+|                      | 1. Каждый элемент проходит независимую валидацию; невалидные → в `errors` с индексом                                 |
 |                      | &nbsp;&nbsp;&nbsp;- `recursive_redirect_error` / `long_url_unsafe_error` / `targets_validation_error` — как у create |
-|                      | 2. Для валидных элементов параллельно вычисляются Argon2-хеши паролей                       |
-|                      | 3. Последовательно разрешаются шаблоны `{random_suffix=N}` (sequential или random+retry)    |
-|                      | 4. Bulk INSERT shorts + short_targets в рамках одной транзакции                             |
-|                      | 5. Конфликты `short_name` внутри batch → в `errors`; остальные ссылки не отменяются         |
-|                      | 6. После commit инвалидируется Redis-версия scope                                           |
-| **Параметры**        | `scope:int` - индификатор scope                                                             |
-| **Инвалидация кеша** | `INCR shorts:scope:{scope}:v`                                                               |
+|                      | 2. Для валидных элементов параллельно вычисляются Argon2-хеши паролей                                                |
+|                      | 3. Последовательно разрешаются шаблоны `{random_suffix=N}` (sequential или random+retry)                             |
+|                      | 4. Bulk INSERT shorts + short_targets в рамках одной транзакции                                                      |
+|                      | 5. Конфликты `short_name` внутри batch → в `errors`; остальные ссылки не отменяются                                  |
+|                      | 6. После commit инвалидируется Redis-версия scope                                                                    |
+| **Параметры**        | `scope:int` - индификатор scope                                                                                      |
+| **Инвалидация кеша** | `INCR shorts:scope:{scope}:v`                                                                                        |
 
 ---
 
@@ -31,6 +31,7 @@
 | budget_validation_error     | 400 | Глобальный `budget` < суммы `targets[].budget`                                                            |
 | utm_validation_error        | 400 | Обязательные UTM не заполнены                                                                             |
 | recursive_redirect_error    | 400 | url указывает на домен из `short.base_domains` или его поддомен (рекурсивный редирект)                    |
+| password_valivadion_error   | 400 | Пароль должен быть длиной от 4 до 128 символов                                                            |
 | long_url_unsafe_error       | 400 | url помечен Yandex Safe Browsing как опасный (malware, phishing и т.п.); проверка — batch Lookup API      |
 | short_name_validation_error | 400 | Ошибка валидации шаблона для short_name                                                                   |
 | tag_validation_error        | 400 | Ошибка в названии tag                                                                                     |
