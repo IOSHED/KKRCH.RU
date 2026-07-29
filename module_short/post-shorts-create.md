@@ -5,6 +5,7 @@
 |                      | Описание                                                                                                                                                     |
 |----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Назначение**       | Создаёт укороченную ссылку                                                                                                                                   |
+| **Auth**             | Bearer или X-Api-Key                                                                                                                                         |
 | **Логика**           | 1. Валидирует поля: `targets`, `short_name`, `subdomain`, `tags`, `set_password`, UTM/CPC                                                                    |
 |                      | 2. `Σ targets[].weight = 100`; каждый `url` на любой домен из `short.base_domains` (или его поддомен) → 400 `recursive_redirect_error`                       |
 |                      | 3. Проверка каждого `targets[].url` через Yandex Safe Browsing → 400 `long_url_unsafe_error`; при таймауте создаётся с внутренним `url_safety_needs_recheck` |
@@ -38,6 +39,8 @@
 | tag_validation_error        | 400 | Ошибка в названии tag                                                                  |
 | validation_error            | 400 | Прочие ошибки валидации (password length, schedule, …)                                 |
 | auth_error                  | 401 | Не авторизован                                                                         |
+| permission_denied_error       | 403 | Недостаточно прав у API key |
+| api_key_scope_mismatch_error  | 403 | API key привязан к другому scope |
 | short_name_not_payed_error  | 402 | Вы имеете уже максимум коротких ссылок для вашей подписки                              |
 | scope_not_found_error       | 404 | Не найден scope или нет к нему доступа                                                 |
 | subdomain_not_found_error   | 404 | Не найден subdomain                                                                    |

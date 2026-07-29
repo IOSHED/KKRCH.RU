@@ -13,6 +13,7 @@
 |                | Описание                                                                 |
 |----------------|--------------------------------------------------------------------------|
 | **Назначение** | Точки `(t, metrics…)` с заданной гранулярностью по entity и фильтрам     |
+| **Auth**       | Bearer или X-Api-Key                                                     |
 | **Логика**     | 0. `StatsRpsMiddleware` → 429 при превышении                             |
 |                | 1. Доступ к scope + резолв entity                                        |
 |                | 2. Нормализация окна + сравнение с `cutoff = now - retention_days`       |
@@ -39,6 +40,8 @@
 | stats_requires_raw_error      | 400 | Нужен raw (hour / фильтр вне retention)|
 | stats_window_outside_retention_error | 400 | Окно глубже retention и не выразимо через agg |
 | auth_error                    | 401 | Не авторизован                         |
+| permission_denied_error       | 403 | Недостаточно прав у API key |
+| api_key_scope_mismatch_error  | 403 | API key привязан к другому scope |
 | scope_not_found_error         | 404 | Scope недоступен                       |
 | folder_not_found_error        | 404 | Папка недоступна                       |
 | short_not_found_error         | 404 | Ссылка недоступна                      |

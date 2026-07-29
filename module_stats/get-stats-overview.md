@@ -13,6 +13,7 @@
 |                | Описание                                                                                                                                                      |
 |----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Назначение** | Упакованный ответ: KPI + короткий ряд + top-N срезы (+ топ ссылок)                                                                                            |
+| **Auth**       | Bearer или X-Api-Key                                                                                                                                          |
 | **Логика**     | 0. `StatsRpsMiddleware` — лимит по `user_id`; превышение → 429                                                                                                |
 |                | 1. Проверяет доступ к `scope_id`                                                                                                                              |
 |                | 2. Резолвит entity: scope \| `folder_id` \| `short_id`                                                                                                        |
@@ -40,6 +41,8 @@ KPI** при `short_id` можно смотреть через `GET .../shorts/{
 |                         | 200 | Сводка собрана (`coverage` raw\|agg\|mixed) |
 | validation_error        | 400 | Невалидные параметры / конфликт entity      |
 | auth_error              | 401 | Не авторизован                              |
+| permission_denied_error       | 403 | Недостаточно прав у API key |
+| api_key_scope_mismatch_error  | 403 | API key привязан к другому scope |
 | scope_not_found_error   | 404 | Scope не найден или нет доступа             |
 | folder_not_found_error  | 404 | Папка не найдена в scope                    |
 | short_not_found_error   | 404 | Ссылка не найдена в scope                   |

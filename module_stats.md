@@ -401,11 +401,11 @@ stats_rate_limit:
 
 | Метод | Путь | Авторизация | Polling | После retention |
 |-------|------|-------------|---------|-----------------|
-| `GET` | `/stats/{scope}/overview` | 🔒 Bearer | ❌ | ✅ **всегда** (agg) |
-| `GET` | `/stats/{scope}/series` | 🔒 Bearer | ✅ | ✅ day из agg; hour/фильтры — нет |
-| `GET` | `/stats/{scope}/breakdown` | 🔒 Bearer | ✅ | ✅ только agg-измерения |
-| `GET` | `/stats/{scope}/ranking` | 🔒 Bearer | ✅ | ⚠️ ограничено (см. матрицу) |
-| `GET` | `/stats/{scope}/shorts/{short_id}` | 🔒 Bearer | ✅ | ✅ lifetime всегда; window → agg |
+| `GET` | `/stats/{scope}/overview` | 🔒 Bearer \| X-Api-Key | ❌ | ✅ **всегда** (agg) |
+| `GET` | `/stats/{scope}/series` | 🔒 Bearer \| X-Api-Key | ✅ | ✅ day из agg; hour/фильтры — нет |
+| `GET` | `/stats/{scope}/breakdown` | 🔒 Bearer \| X-Api-Key | ✅ | ✅ только agg-измерения |
+| `GET` | `/stats/{scope}/ranking` | 🔒 Bearer \| X-Api-Key | ✅ | ⚠️ ограничено (см. матрицу) |
+| `GET` | `/stats/{scope}/shorts/{short_id}` | 🔒 Bearer \| X-Api-Key | ✅ | ✅ lifetime всегда; window → agg |
 
 Префикс API: `/api/v1` (как у остальных модулей).
 

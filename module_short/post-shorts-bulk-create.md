@@ -5,6 +5,7 @@
 |                      | Описание                                                                                                             |
 |----------------------|----------------------------------------------------------------------------------------------------------------------|
 | **Назначение**       | Создаёт укороченные ссылки массово                                                                                   |
+| **Auth**             | Bearer или X-Api-Key                                                                                                 |
 | **Логика**           | 0. Если число элементов превышает лимит (`bulk.max_items`) → 400 `too_many_items_error`                              |
 |                      | 1. Каждый элемент проходит независимую валидацию; невалидные → в `errors` с индексом                                 |
 |                      | &nbsp;&nbsp;&nbsp;- `recursive_redirect_error` / `long_url_unsafe_error` / `targets_validation_error` — как у create |
@@ -37,6 +38,8 @@
 | tag_validation_error        | 400 | Ошибка в названии tag                                                                                     |
 | validation_error            | 400 | Прочие ошибки валидации                                                                                   |
 | auth_error                  | 401 | Не авторизован                                                                                            |
+| permission_denied_error       | 403 | Недостаточно прав у API key |
+| api_key_scope_mismatch_error  | 403 | API key привязан к другому scope |
 | short_name_not_payed_error  | 402 | Вы имеете уже максимум коротких ссылок для вашей подписки                                                 |
 | scope_not_found_error       | 404 | Не найден scope или нет к нему доступа                                                                    |
 | subdomain_not_found_error   | 404 | Не найден subdomain                                                                                       |

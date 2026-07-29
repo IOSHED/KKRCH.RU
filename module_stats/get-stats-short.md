@@ -12,6 +12,7 @@
 |                | Описание                                                                 |
 |----------------|--------------------------------------------------------------------------|
 | **Назначение** | Детальный отчёт по short: lifetime maps + window KPIs/series/breakdowns  |
+| **Auth**       | Bearer или X-Api-Key                                                     |
 | **Логика**     | 0. `StatsRpsMiddleware`                                                  |
 |                | 1. Проверяет, что `short_id` принадлежит `scope_id` владельца            |
 |                | 2. Читает `link_short_agg` (lifetime) — **всегда**                       |
@@ -37,6 +38,8 @@
 |                         | 304 | Не изменилось               |
 | validation_error        | 400 | Окно / параметры            |
 | auth_error              | 401 | Не авторизован              |
+| permission_denied_error       | 403 | Недостаточно прав у API key |
+| api_key_scope_mismatch_error  | 403 | API key привязан к другому scope |
 | scope_not_found_error   | 404 | Scope недоступен            |
 | short_not_found_error   | 404 | Ссылка не в scope / нет доступа |
 | too_many_requests_error | 429 | RPS / ban                   |

@@ -1,11 +1,12 @@
 # API Keys Module
 
-> **Статус:** контракт / дизайн. HTTP-ручек и миграций в backend **пока нет** —
-> раздел описывает целевой API, не текущую реализацию.
+> **Статус:** реализовано в backend (миграция `20270101000500_api_keys`,
+> handlers `/scopes/{scope}/api-keys`, dual-auth `ScopeAccess` для scoped
+> short/folders/stats/scopes-update). Redis — optional cache (fail-open).
 
 Модуль **программного доступа** к API в рамках одного scope: владелец создаёт
-ключ с набором прав, разработчик кладёт его в заголовок запросов и вызывает
-те же ручки short/stats/transfer, что и UI (без OAuth-сессии).
+ключ с набором прав, разработчик кладёт его в заголовке запросов и вызывает
+те же ручки short/stats, что и UI (без OAuth-сессии).
 
 Ключ **привязан к одному `scope_id`**. Чужие scope недоступны, даже при `*`.
 
@@ -92,8 +93,8 @@ CORS: добавить `X-Api-Key` в `cors.allowed_headers` (`base.yaml`).
 | Часть | Описание |
 |-------|----------|
 | Префикс | `kk_` (константа продукта) |
-| Secret | cryptographically random, длина из `api_keys.secret_bytes` (default 32 → ~43 символа base64url) |
-| Полный ключ | `kk_` + secret; **отдаётся только в ответе create** |
+| Secret | cryptographically random, длина из `api_keys.secret_bytes` (default 32 → hex 64 символа) |
+| Полный ключ | `kk_` + hex(secret); **отдаётся только в ответе create** |
 
 В БД:
 
@@ -232,7 +233,7 @@ flowchart TD
 ```yaml
 api_keys:
   max_per_scope: 5          # жёсткий лимит активных ключей на scope
-  secret_bytes: 32          # энтропия secret (без префикса kk_)
+  secret_bytes: 32          # энтропия secret (без префикса kk_); кодируется hex
   redis_cache_ttl: 5m       # TTL кеша auth; revoke + короткий TTL = fail-safe
   last_used_min_interval: 5m  # throttle записи last_used_at
 ```
@@ -242,6 +243,28 @@ api_keys:
 Превышение `max_per_scope` при create → `402 api_key_limit_error` (или `409`,
 если лимит считаем конфликтом ресурса; в контракте — **402** по аналогии с
 лимитами подписки на сущности scope).
+
+### Consumer auth (реализация)
+
+`ScopeAccess` (Bearer приоритетнее `X-Api-Key`) на:
+
+- **shorts:** create, list, bulk_create, bulk_update, bulk_delete, availability
+- **folders:** list, bulk_create, bulk_delete, update, move
+- **subdomains:** create, list, delete
+- **scopes:** PATCH meta only (create / delete / list scopes — Bearer only)
+- **stats:** overview, series, breakdown, ranking, short_card
+
+**Недоступно через API key** (только Bearer): управление `api_keys`, create /
+delete / list scopes, auth, support, notifications, transfer (пока).
+
+**Redis/cache principal** (как у `AuthenticatedUser`): `id`, `scope_id`,
+`owner_user_id`, `subscription`, `permissions` — PG на hot path authorize не
+вызывается.
+
+**Tracing actor:** `user:{uuid}` / `apikey:{uuid}`.
+
+**Ошибки consumer-ручек:** `403 permission_denied_error`,
+`403 api_key_scope_mismatch_error` (см. таблицы эндпоинтов).
 
 ---
 

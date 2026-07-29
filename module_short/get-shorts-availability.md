@@ -5,6 +5,7 @@
 |                | Описание                                                                                                  |
 |----------------|-----------------------------------------------------------------------------------------------------------|
 | **Назначение** | Проверяет доступность пары `(subdomain, short_name)`                                                      |
+| **Auth**       | Bearer или X-Api-Key                                                                                      |
 | **Логика**     | 1. Валидирует `short_name` и опциональный `subdomain`                                                     |
 |                | 2. Redis bloom: если ключ есть и ответ «точно свободно» → `available: true` без Postgres                  |
 |                | 3. Иначе (ключ bloom отсутствует / «возможно занято» / Redis недоступен) — точный SELECT в Postgres       |
@@ -23,6 +24,8 @@
 | subdomain_validation_error  | 400 | Ошибка валидации шаблона для subdomain           |
 | validation_error            | 400 | Ошибка валидации                                 |
 | auth_error                  | 401 | Не авторизован                                   |
+| permission_denied_error       | 403 | Недостаточно прав у API key |
+| api_key_scope_mismatch_error  | 403 | API key привязан к другому scope |
 | subdomain_not_found_error   | 404 | Не найден subdomain                              |
 | conflict_error              | 409 | Уже существует такая пара subdomain + short_name |
 | server_error                | 500 | Внутренняя ошибка сервера                        |

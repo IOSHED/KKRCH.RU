@@ -4,9 +4,10 @@
 минимальная задержка. Публичный редирект открыт наружу — при проектировании
 учитываем утечки и безопасность.
 
-> API документируется в Swagger и использует Bearer пользователя.
 > Программный доступ через `X-Api-Key` — контракт
-> [`module_api_keys`](module_api_keys.md) (код ещё нет).
+> [`module_api_keys`](module_api_keys.md): permissions, приоритет Bearer над
+> ключом, ошибки `403 permission_denied_error` /
+> `api_key_scope_mismatch_error`.
 
 ---
 
@@ -454,27 +455,27 @@ sequenceDiagram
 
 ## Сводная таблица эндпоинтов
 
-| Метод    | Путь                             | Авторизация | Описание                        |
-|----------|----------------------------------|-------------|---------------------------------|
-| `POST`   | `/shorts/{scope:int?}`           | 🔒 Bearer   | Создание короткой ссылки        |
-| `GET`    | `/shorts/{scope:int?}`           | 🔒 Bearer   | Список ссылок                   |
-| `POST`   | `/shorts/{scope:int?}/bulk`      | 🔒 Bearer   | Массовое создание ссылок        |
-| `DELETE` | `/shorts/bulk`                   | 🔒 Bearer   | Массовое удаление ссылок        |
-| `GET`    | `/shorts/availability`           | 🔒 Bearer   | Проверка доступности short_name |
-| `POST`   | `/folders/{scope:int?}/bulk`     | 🔒 Bearer   | Массовое создание папок         |
-| `DELETE` | `/folders/bulk`                  | 🔒 Bearer   | Массовое удаление папок         |
-| `GET`    | `/folders/{scope:int?}`          | 🔒 Bearer   | Список папок                    |
-| `PATCH`  | `/folders/{folder_id:uuid}/move` | 🔒 Bearer   | Перемещение папки               |
-| `PATCH`  | `/folders/{folder_id:uuid}`      | 🔒 Bearer   | Обновление папки                |
-| `GET`    | `/{short_name:str}`              | —           | Редирект                        |
-| `PATCH`  | `/shorts/bulk`                   | 🔒 Bearer   | Массовое обновление ссылок      |
-| `POST`   | `/scopes`                        | 🔒 Bearer   | Создание scope                  |
-| `GET`    | `/scopes`                        | 🔒 Bearer   | Список scope                    |
-| `PATCH`  | `/scopes/{scope:int?}`           | 🔒 Bearer   | Обновление scope                |
-| `DELETE` | `/scopes/{scope:int?}`           | 🔒 Bearer   | Удаление scope                  |
-| `POST`   | `/subdomains`                    | 🔒 Bearer   | Создание subdomain              |
-| `GET`    | `/subdomains`                    | 🔒 Bearer   | Список subdomains               |
-| `DELETE` | `/subdomains/{subdomain:str}`    | 🔒 Bearer   | Удаление subdomain              |
+| Метод    | Путь                             | Авторизация              | Описание                        |
+|----------|----------------------------------|--------------------------|---------------------------------|
+| `POST`   | `/shorts/{scope:int?}`           | 🔒 Bearer \| X-Api-Key   | Создание короткой ссылки        |
+| `GET`    | `/shorts/{scope:int?}`           | 🔒 Bearer \| X-Api-Key   | Список ссылок                   |
+| `POST`   | `/shorts/{scope:int?}/bulk`      | 🔒 Bearer \| X-Api-Key   | Массовое создание ссылок        |
+| `DELETE` | `/shorts/bulk`                   | 🔒 Bearer \| X-Api-Key   | Массовое удаление ссылок        |
+| `GET`    | `/shorts/availability`           | 🔒 Bearer \| X-Api-Key   | Проверка доступности short_name |
+| `POST`   | `/folders/{scope:int?}/bulk`     | 🔒 Bearer \| X-Api-Key   | Массовое создание папок         |
+| `DELETE` | `/folders/bulk`                  | 🔒 Bearer \| X-Api-Key   | Массовое удаление папок         |
+| `GET`    | `/folders/{scope:int?}`          | 🔒 Bearer \| X-Api-Key   | Список папок                    |
+| `PATCH`  | `/folders/{folder_id:uuid}/move` | 🔒 Bearer \| X-Api-Key   | Перемещение папки               |
+| `PATCH`  | `/folders/{folder_id:uuid}`      | 🔒 Bearer \| X-Api-Key   | Обновление папки                |
+| `GET`    | `/{short_name:str}`              | —                        | Редирект                        |
+| `PATCH`  | `/shorts/bulk`                   | 🔒 Bearer \| X-Api-Key   | Массовое обновление ссылок      |
+| `POST`   | `/scopes`                        | 🔒 Bearer                | Создание scope                  |
+| `GET`    | `/scopes`                        | 🔒 Bearer                | Список scope                    |
+| `PATCH`  | `/scopes/{scope:int?}`           | 🔒 Bearer \| X-Api-Key   | Обновление scope                |
+| `DELETE` | `/scopes/{scope:int?}`           | 🔒 Bearer                | Удаление scope                  |
+| `POST`   | `/subdomains`                    | 🔒 Bearer \| X-Api-Key   | Создание subdomain              |
+| `GET`    | `/subdomains`                    | 🔒 Bearer \| X-Api-Key   | Список subdomains               |
+| `DELETE` | `/subdomains/{subdomain:str}`    | 🔒 Bearer \| X-Api-Key   | Удаление subdomain              |
 
 ---
 
