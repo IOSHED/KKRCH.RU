@@ -44,6 +44,11 @@
 | ↳      | POST /subdomains                     | [ссылка](module_short/post-subdomains.md)          |
 | ↳      | GET /subdomains                      | [ссылка](module_short/get-subdomains.md)           |
 | ↳      | DELETE /subdomains/{subdomain:str}   | [ссылка](module_short/delete-subdomains.md)        |
+| ↳      | POST /custom-domains                 | [ссылка](module_short/post-custom-domains.md)      |
+| ↳      | GET /custom-domains                  | [ссылка](module_short/get-custom-domains.md)       |
+| ↳      | POST /custom-domains/verify          | [ссылка](module_short/post-custom-domains-verify.md) |
+| ↳      | DELETE /custom-domains               | [ссылка](module_short/delete-custom-domains.md)    |
+| 🌐     | Custom domains (собственный домен)   | [ссылка](#custom-domains-собственный-домен)        |
 
 ---
 
@@ -56,6 +61,9 @@
     - Название кастомное
 - Поддержка тегов для ссылок, а так же понятные фильтры
 - Поддержка кастомный поддоменов для ссылок (для B2B клиентов)
+- **Собственный домен (custom domain)** — привязка FQDN клиента (`go.company.ru`)
+  с DNS TXT-верификацией владения и CNAME на edge; см.
+  [Custom domains](#custom-domains-собственный-домен)
 - Массовое создание ссылок (для B2B клиентов)
 - Поддержка разных типов редиректа (301, 302, 307, 308)
 - Поддержка разных типов ссылок:
@@ -82,6 +90,182 @@
 
 ---
 
+## Custom domains (собственный домен)
+
+> **Статус:** реализовано в backend (миграция `20270101000600_custom_domains`,
+> handlers `/custom-domains`, dual-auth `ScopeAccess`, лимит
+> `subscription_plans.max_custom_domains`).
+
+Фича для B2B: клиент использует **свой** FQDN (`go.company.ru`,
+`links.brand.ru`) вместо поддомена на `short.base_domains`. Отличается от
+существующих [subdomains](#сводная-таблица-эндпоинтов): там `name` — это
+**метка** на нашей зоне (`my-brand` → `my-brand.example.com`), здесь — полный
+домен клиента.
+
+### Use cases
+
+| Сценарий | Как |
+|----------|-----|
+| Брендированные ссылки в рекламе | `https://go.company.ru/promo` вместо `https://kk.example/abc` |
+| White-label для агентства | Один scope — несколько доменов кампаний (в лимите подписки) |
+| Миграция с Bitly / clck.su | Импорт back-half; `custom_domain` в create short |
+| Отзыв домена | `DELETE /custom-domains` → ссылки на домене не редиректят |
+
+### Модель
+
+Домен привязан к **`scope_id`** (как subdomain). Владелец — через `scopes`.
+
+| Поле | Тип | Описание |
+|------|-----|----------|
+| `domain` | `string` | PK, FQDN lowercase (`go.company.ru`) |
+| `scope_id` | `i64` | FK → scopes |
+| `status` | enum | см. ниже |
+| `verification_token` | `uuid` | Секрет для TXT; не отдаётся в GET |
+| `verification_expires_at` | `timestamp?` | TTL токена (default 72h) |
+| `verified_at` | `timestamp?` | Успешная TXT-проверка |
+| `routing_checked_at` | `timestamp?` | Успешная CNAME/A-проверка |
+| `last_check_at` | `timestamp?` | Последний вызов verify |
+| `last_check_error` | `string?` | Человекочитаемая ошибка DNS |
+| `created_at` / `deleted_at` | `timestamp` | аудит / soft-delete |
+
+**Статусы:**
+
+| `status` | Описание | Можно создавать shorts? |
+|----------|----------|-------------------------|
+| `pending_verification` | TXT ещё не найден | нет |
+| `verified` | TXT ок, CNAME/A ещё нет | нет |
+| `active` | TXT + routing ок | **да** |
+| `verification_failed` | Истёк token без успеха | нет (reissue POST) |
+| `deleted` | soft-delete | нет |
+
+### DNS: верификация владения (TXT)
+
+После `POST /custom-domains` клиент добавляет **одну** TXT-запись:
+
+| Поле | Значение |
+|------|----------|
+| **Host / Name** | `_urlshortener.{domain}` |
+| **Type** | `TXT` |
+| **Value** | `urlshortener-verify={verification_token}` |
+| **TTL** | 300–3600 (рекомендация) |
+
+Пример для `go.company.ru`:
+
+```text
+_urlshortener.go.company.ru.  IN  TXT  "urlshortener-verify=a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+```
+
+**Apex-домен** (`company.ru`, без поддомена): host =
+`_urlshortener.company.ru` (не `@`). Wildcard `*.company.ru` в v1 **не**
+поддерживается.
+
+Проверка: публичный DNS resolver (конфиг `custom_domains.dns_resolvers`),
+таймаут `dns_lookup_timeout` (default 5s). Совпадение **точное** по значению
+TXT (после trim кавычек). Несколько TXT на host — достаточно одного совпадения.
+
+### DNS: маршрутизация (после TXT)
+
+| Тип домена | Запись | Host | Value |
+|------------|--------|------|-------|
+| Поддомен (`go.company.ru`) | `CNAME` | `go.company.ru` | `custom_domains.routing_cname_target` |
+| Apex (`company.ru`) | `A` или `ALIAS/ANAME` | `@` | IP edge / alias на target (в UI — отдельная подсказка) |
+
+`POST /custom-domains/verify` проверяет TXT **и** routing за один вызов.
+Домен становится `active` только когда оба условия выполнены.
+
+### Интеграция с короткими ссылками
+
+При create/PATCH short — опциональное поле **`custom_domain`** (FQDN):
+
+- Допустимо только если домен в статусе `active` и принадлежит тому же
+  `scope_id`, что и short.
+- **Взаимоисключение** с полем `subdomain`: задать оба → `400 validation_error`.
+- Публичный URL: `https://{custom_domain}/{short_name}`.
+- Resolve cache key: `short:resolve:{custom_domain}:{short_name}` (тот же
+  формат, что для platform subdomain label).
+- `GET /shorts/availability` — query `custom_domain` вместо `subdomain`
+  (взаимоисключающие).
+
+При soft-delete домена — `inactive_reason = custom_domain_deleted` (приоритет
+70, наравне с `subdomain_deleted`).
+
+### Валидация домена
+
+- FQDN: 1–253 символа, lowercase ASCII + punycode для IDN (`xn--…`).
+- Запрещены: IP-адреса, wildcard (`*.`), домены из `short.base_domains` и их
+  поддомены (`recursive_domain_error`).
+- Глобальная уникальность: один FQDN — один аккаунт (активная запись).
+- Лимит на scope: `custom_domains.max_per_scope` (конфиг + подписка).
+
+### Надёжность
+
+- **Postgres — source of truth.** Redis только для list-cache (как subdomains).
+- Сбой DNS при verify **не** ломает API: `200` + `verified: false` +
+  `last_check_error`; статус домена не понижается с `active`/`verified` без
+  явной re-verify политики.
+- Фоновый **re-verify** (опционально, `custom_domains.reverify_interval`):
+  worker проверяет TXT у `active` доменов; при пропаже TXT → `verified` +
+  деактивация shorts (как при delete). Redis down на verify — не блокирует
+  ручную проверку.
+- Rate limit verify: `verify_min_interval` на домен (default 30s) — защита от
+  DNS abuse.
+
+### Конфигурация (`conf/base.yaml`)
+
+```yaml
+custom_domains:
+  max_per_scope: 3              # дефолт; переопределяется подпиской
+  verification_token_ttl: 72h
+  verify_min_interval: 30s
+  dns_lookup_timeout: 5s
+  dns_resolvers:
+    - "8.8.8.8"
+    - "1.1.1.1"
+  txt_host_prefix: "_urlshortener"
+  txt_value_prefix: "urlshortener-verify="
+  routing_cname_target: "edge.kkoroch.ru"
+  reverify_interval: 720h     # 30d; 0 = выключено
+```
+
+### Permissions (API keys / collaboration)
+
+| Resource | Actions | Примечание |
+|----------|---------|------------|
+| `custom_domains` | `read`, `write`, `delete`, `*` | CRUD доменов в scope ключа |
+
+`write` покрывает `POST /custom-domains` и `POST /custom-domains/verify`.
+
+### Дешёвый дизайн
+
+- **4 ручки** (create, list, verify, delete) — без отдельного GET-by-domain
+  (достаточно list + filter).
+- Verify **on-demand** (кнопка в UI), не постоянный polling с нашей стороны.
+- Один TXT host prefix, без multi-step challenge.
+- Token в PG, не в Redis.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant UI
+    participant API
+    participant DNS as DNS провайдер
+    participant PG as Postgres
+    User ->> UI: Добавить go.company.ru
+    UI ->> API: POST /custom-domains
+    API ->> PG: INSERT pending
+    API -->> UI: TXT + CNAME инструкции
+    User ->> DNS: TXT _urlshortener.go.company.ru
+    User ->> DNS: CNAME go → edge
+    UI ->> API: POST /custom-domains/verify
+    API ->> DNS: resolve TXT + CNAME
+    API ->> PG: status=active
+    API -->> UI: active
+    UI ->> API: POST /shorts/{scope} { custom_domain, short_name }
+    API -->> UI: https://go.company.ru/promo
+```
+
+---
+
 ## Активность ссылки (`is_active` / `inactive_reason`)
 
 Клиент **читает** `is_active` и `inactive_reason`, но **не задаёт** их при
@@ -98,6 +282,7 @@ create/PATCH. Состояние считает сервер.
 
 | Приоритет | `inactive_reason`   | Условие |
 |-----------|---------------------|---------|
+| 70 | `custom_domain_deleted` | custom domain soft-deleted |
 | 70 | `subdomain_deleted` | subdomain soft-deleted |
 | 60 | `expired` | `expiration_time <= now` |
 | 50 | `max_clicks` | `clicks_count >= max_clicks` |
@@ -435,6 +620,7 @@ sequenceDiagram
 - `folders:list:{scope}:{v}` → список папок по scope. TTL 60 сек.
 - `scopes:list:{owner}:{v}:{filters_hash}` → список scope для пользователя/компании. TTL 60 сек.
 - `subdomains:list:{owner}:{v}:{filters_hash}` → список subdomain для пользователя/компании. TTL 60 сек.
+- `custom_domains:list:{owner}:{v}:{filters_hash}` → список custom domains. TTL 60 сек.
 - `shorts:availability:{subdomain}:{short_name}` → доступность short_name. TTL 10-30 сек.
 
 `filters_hash` строится по нормализованному JSON фильтров (порядок полей фиксирован), чтобы одинаковые запросы попадали
@@ -450,6 +636,8 @@ sequenceDiagram
   `shorts:scope:{scope}:v` и `folders:scope:{scope}:v`.
 - Изменения subdomain (create/delete) → `INCR subdomains:list:{owner}:v` и очистка `shorts:availability:{subdomain}:*` и
   `short:resolve:{subdomain}:*`.
+- Изменения custom domain (create/verify/delete) → `INCR custom_domains:list:{owner}:v`; при delete/active —
+  `short:resolve:{custom_domain}:*`, availability keys.
 
 ---
 
@@ -476,6 +664,10 @@ sequenceDiagram
 | `POST`   | `/subdomains`                    | 🔒 Bearer \| X-Api-Key   | Создание subdomain              |
 | `GET`    | `/subdomains`                    | 🔒 Bearer \| X-Api-Key   | Список subdomains               |
 | `DELETE` | `/subdomains/{subdomain:str}`    | 🔒 Bearer \| X-Api-Key   | Удаление subdomain              |
+| `POST`   | `/custom-domains`                | 🔒 Bearer \| X-Api-Key   | Регистрация домена + TXT инструкции |
+| `GET`    | `/custom-domains`                | 🔒 Bearer \| X-Api-Key   | Список custom domains           |
+| `POST`   | `/custom-domains/verify`         | 🔒 Bearer \| X-Api-Key   | Проверка TXT + routing          |
+| `DELETE` | `/custom-domains`                | 🔒 Bearer \| X-Api-Key   | Удаление custom domain          |
 
 ---
 

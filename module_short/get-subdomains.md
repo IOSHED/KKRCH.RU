@@ -12,13 +12,13 @@
 
 ---
 
-| Ответ        | Код | Описание                  |
-|--------------|-----|---------------------------|
-| success      | 200 | Список subdomains         |
-| auth_error   | 401 | Не авторизован            |
-| permission_denied_error       | 403 | Недостаточно прав у API key |
-| api_key_scope_mismatch_error  | 403 | API key привязан к другому scope |
-| server_error | 500 | Внутренняя ошибка сервера |
+| Ответ                        | Код | Описание                         |
+|------------------------------|-----|----------------------------------|
+| success                      | 200 | Список subdomains                |
+| auth_error                   | 401 | Не авторизован                   |
+| permission_denied_error      | 403 | Недостаточно прав у API key      |
+| api_key_scope_mismatch_error | 403 | API key привязан к другому scope |
+| server_error                 | 500 | Внутренняя ошибка сервера        |
 
 ---
 

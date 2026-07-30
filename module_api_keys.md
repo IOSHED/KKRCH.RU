@@ -127,6 +127,7 @@ CORS: добавить `X-Api-Key` в `cors.allowed_headers` (`base.yaml`).
 | `folders`    | `read`, `write`, `delete`, `*` | folders CRUD / move                                            |
 | `stats`      | `read`, `*`                    | `/stats/{scope}/*`                                             |
 | `subdomains` | `read`, `write`, `delete`, `*` | subdomain CRUD (только если subdomain принадлежит этому scope) |
+| `custom_domains` | `read`, `write`, `delete`, `*` | custom domain CRUD + verify (см. [module_short](module_short.md#custom-domains-собственный-домен)) |
 | `scopes`     | `read`, `write`, `*`           | GET/PATCH этого scope (не create/delete чужих)                 |
 | `transfer`   | `export`, `import`, `*`        | transfer jobs                                                  |
 
