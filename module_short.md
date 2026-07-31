@@ -13,42 +13,42 @@
 
 ## Оглавление
 
-| Иконка | Раздел                               | Ссылка                                             |
-|--------|--------------------------------------|----------------------------------------------------|
-| 📌     | Основные feature                     | [ссылка](#основные-feature)                        |
-| 🎯     | Targets + CPC                        | [ссылка](#targets--cpc-несколько-destination-url)  |
-| 🏷️    | UTM и макросы платформ РФ            | [ссылка](#utm-метки-и-макросы-платформ-рф)         |
-| 📊     | Какую статистику собираем            | [ссылка](#какую-статистику-собираем)               |
-| ↳      | Статистика если ссылка изменена      | [ссылка](#статистика-если-ссылка-изменена)         |
-| ⚙️     | Как собираем статистику              | [ссылка](#как-собираем-статистику)                 |
-| 🗄️    | Как кешируем необходимое             | [ссылка](#как-кешируем-необходимое)                |
-| 🚀     | Кеширование GET-методов              | [ссылка](#кеширование-get-методов)                 |
-| ♻️     | Инвалидация кеша                     | [ссылка](#инвалидация-кеша)                        |
-| 📋     | Сводная таблица эндпоинтов           | [ссылка](#сводная-таблица-эндпоинтов)              |
-| ↳      | POST /shorts/{scope:int?}            | [ссылка](module_short/post-shorts-create.md)       |
-| ↳      | GET /shorts/{scope:int?}             | [ссылка](module_short/get-shorts.md)               |
-| ↳      | POST /shorts/{scope:int?}/bulk       | [ссылка](module_short/post-shorts-bulk-create.md)  |
-| ↳      | DELETE /shorts/bulk                  | [ссылка](module_short/delete-shorts-bulk.md)       |
-| ↳      | GET /shorts/availability             | [ссылка](module_short/get-shorts-availability.md)  |
-| ↳      | POST /folders/{scope:int?}/bulk      | [ссылка](module_short/post-folders-bulk-create.md) |
-| ↳      | DELETE /folders/bulk                 | [ссылка](module_short/delete-folders-bulk.md)      |
-| ↳      | GET /folders/{scope:int?}            | [ссылка](module_short/get-folders.md)              |
-| ↳      | PATCH /folders/{folder_id:uuid}/move | [ссылка](module_short/patch-folders-move.md)       |
-| ↳      | PATCH /folders/{folder_id:uuid}      | [ссылка](module_short/patch-folders.md)            |
-| ↳      | GET /{short_name:str}                | [ссылка](module_short/get-shorts-redirect.md)      |
-| ↳      | PATCH /shorts/bulk                   | [ссылка](module_short/patch-shorts-bulk.md)        |
-| ↳      | POST /scopes                         | [ссылка](module_short/post-scopes.md)              |
-| ↳      | GET /scopes                          | [ссылка](module_short/get-scopes.md)               |
-| ↳      | PATCH /scopes/{scope:int?}           | [ссылка](module_short/patch-scopes.md)             |
-| ↳      | DELETE /scopes/{scope:int?}          | [ссылка](module_short/delete-scopes.md)            |
-| ↳      | POST /subdomains                     | [ссылка](module_short/post-subdomains.md)          |
-| ↳      | GET /subdomains                      | [ссылка](module_short/get-subdomains.md)           |
-| ↳      | DELETE /subdomains/{subdomain:str}   | [ссылка](module_short/delete-subdomains.md)        |
-| ↳      | POST /custom-domains                 | [ссылка](module_short/post-custom-domains.md)      |
-| ↳      | GET /custom-domains                  | [ссылка](module_short/get-custom-domains.md)       |
+| Иконка | Раздел                               | Ссылка                                               |
+|--------|--------------------------------------|------------------------------------------------------|
+| 📌     | Основные feature                     | [ссылка](#основные-feature)                          |
+| 🎯     | Targets + CPC                        | [ссылка](#targets--cpc-несколько-destination-url)    |
+| 🏷️    | UTM и макросы платформ РФ            | [ссылка](#utm-метки-и-макросы-платформ-рф)           |
+| 📊     | Какую статистику собираем            | [ссылка](#какую-статистику-собираем)                 |
+| ↳      | Статистика если ссылка изменена      | [ссылка](#статистика-если-ссылка-изменена)           |
+| ⚙️     | Как собираем статистику              | [ссылка](#как-собираем-статистику)                   |
+| 🗄️    | Как кешируем необходимое             | [ссылка](#как-кешируем-необходимое)                  |
+| 🚀     | Кеширование GET-методов              | [ссылка](#кеширование-get-методов)                   |
+| ♻️     | Инвалидация кеша                     | [ссылка](#инвалидация-кеша)                          |
+| 📋     | Сводная таблица эндпоинтов           | [ссылка](#сводная-таблица-эндпоинтов)                |
+| ↳      | POST /shorts/{scope:int?}            | [ссылка](module_short/post-shorts-create.md)         |
+| ↳      | GET /shorts/{scope:int?}             | [ссылка](module_short/get-shorts.md)                 |
+| ↳      | POST /shorts/{scope:int?}/bulk       | [ссылка](module_short/post-shorts-bulk-create.md)    |
+| ↳      | DELETE /shorts/bulk                  | [ссылка](module_short/delete-shorts-bulk.md)         |
+| ↳      | GET /shorts/availability             | [ссылка](module_short/get-shorts-availability.md)    |
+| ↳      | POST /folders/{scope:int?}/bulk      | [ссылка](module_short/post-folders-bulk-create.md)   |
+| ↳      | DELETE /folders/bulk                 | [ссылка](module_short/delete-folders-bulk.md)        |
+| ↳      | GET /folders/{scope:int?}            | [ссылка](module_short/get-folders.md)                |
+| ↳      | PATCH /folders/{folder_id:uuid}/move | [ссылка](module_short/patch-folders-move.md)         |
+| ↳      | PATCH /folders/{folder_id:uuid}      | [ссылка](module_short/patch-folders.md)              |
+| ↳      | GET /{short_name:str}                | [ссылка](module_short/get-shorts-redirect.md)        |
+| ↳      | PATCH /shorts/bulk                   | [ссылка](module_short/patch-shorts-bulk.md)          |
+| ↳      | POST /scopes                         | [ссылка](module_short/post-scopes.md)                |
+| ↳      | GET /scopes                          | [ссылка](module_short/get-scopes.md)                 |
+| ↳      | PATCH /scopes/{scope:int?}           | [ссылка](module_short/patch-scopes.md)               |
+| ↳      | DELETE /scopes/{scope:int?}          | [ссылка](module_short/delete-scopes.md)              |
+| ↳      | POST /subdomains                     | [ссылка](module_short/post-subdomains.md)            |
+| ↳      | GET /subdomains                      | [ссылка](module_short/get-subdomains.md)             |
+| ↳      | DELETE /subdomains/{subdomain:str}   | [ссылка](module_short/delete-subdomains.md)          |
+| ↳      | POST /custom-domains                 | [ссылка](module_short/post-custom-domains.md)        |
+| ↳      | GET /custom-domains                  | [ссылка](module_short/get-custom-domains.md)         |
 | ↳      | POST /custom-domains/verify          | [ссылка](module_short/post-custom-domains-verify.md) |
-| ↳      | DELETE /custom-domains               | [ссылка](module_short/delete-custom-domains.md)    |
-| 🌐     | Custom domains (собственный домен)   | [ссылка](#custom-domains-собственный-домен)        |
+| ↳      | DELETE /custom-domains               | [ссылка](module_short/delete-custom-domains.md)      |
+| 🌐     | Custom domains (собственный домен)   | [ссылка](#custom-domains-собственный-домен)          |
 
 ---
 
@@ -104,50 +104,50 @@
 
 ### Use cases
 
-| Сценарий | Как |
-|----------|-----|
+| Сценарий                        | Как                                                           |
+|---------------------------------|---------------------------------------------------------------|
 | Брендированные ссылки в рекламе | `https://go.company.ru/promo` вместо `https://kk.example/abc` |
-| White-label для агентства | Один scope — несколько доменов кампаний (в лимите подписки) |
-| Миграция с Bitly / clck.su | Импорт back-half; `custom_domain` в create short |
-| Отзыв домена | `DELETE /custom-domains` → ссылки на домене не редиректят |
+| White-label для агентства       | Один scope — несколько доменов кампаний (в лимите подписки)   |
+| Миграция с Bitly / clck.su      | Импорт back-half; `custom_domain` в create short              |
+| Отзыв домена                    | `DELETE /custom-domains` → ссылки на домене не редиректят     |
 
 ### Модель
 
 Домен привязан к **`scope_id`** (как subdomain). Владелец — через `scopes`.
 
-| Поле | Тип | Описание |
-|------|-----|----------|
-| `domain` | `string` | PK, FQDN lowercase (`go.company.ru`) |
-| `scope_id` | `i64` | FK → scopes |
-| `status` | enum | см. ниже |
-| `verification_token` | `uuid` | Секрет для TXT; не отдаётся в GET |
-| `verification_expires_at` | `timestamp?` | TTL токена (default 72h) |
-| `verified_at` | `timestamp?` | Успешная TXT-проверка |
-| `routing_checked_at` | `timestamp?` | Успешная CNAME/A-проверка |
-| `last_check_at` | `timestamp?` | Последний вызов verify |
-| `last_check_error` | `string?` | Человекочитаемая ошибка DNS |
-| `created_at` / `deleted_at` | `timestamp` | аудит / soft-delete |
+| Поле                        | Тип          | Описание                             |
+|-----------------------------|--------------|--------------------------------------|
+| `domain`                    | `string`     | PK, FQDN lowercase (`go.company.ru`) |
+| `scope_id`                  | `i64`        | FK → scopes                          |
+| `status`                    | enum         | см. ниже                             |
+| `verification_token`        | `uuid`       | Секрет для TXT; не отдаётся в GET    |
+| `verification_expires_at`   | `timestamp?` | TTL токена (default 72h)             |
+| `verified_at`               | `timestamp?` | Успешная TXT-проверка                |
+| `routing_checked_at`        | `timestamp?` | Успешная CNAME/A-проверка            |
+| `last_check_at`             | `timestamp?` | Последний вызов verify               |
+| `last_check_error`          | `string?`    | Человекочитаемая ошибка DNS          |
+| `created_at` / `deleted_at` | `timestamp`  | аудит / soft-delete                  |
 
 **Статусы:**
 
-| `status` | Описание | Можно создавать shorts? |
-|----------|----------|-------------------------|
-| `pending_verification` | TXT ещё не найден | нет |
-| `verified` | TXT ок, CNAME/A ещё нет | нет |
-| `active` | TXT + routing ок | **да** |
-| `verification_failed` | Истёк token без успеха | нет (reissue POST) |
-| `deleted` | soft-delete | нет |
+| `status`               | Описание                | Можно создавать shorts? |
+|------------------------|-------------------------|-------------------------|
+| `pending_verification` | TXT ещё не найден       | нет                     |
+| `verified`             | TXT ок, CNAME/A ещё нет | нет                     |
+| `active`               | TXT + routing ок        | **да**                  |
+| `verification_failed`  | Истёк token без успеха  | нет (reissue POST)      |
+| `deleted`              | soft-delete             | нет                     |
 
 ### DNS: верификация владения (TXT)
 
 После `POST /custom-domains` клиент добавляет **одну** TXT-запись:
 
-| Поле | Значение |
-|------|----------|
-| **Host / Name** | `_urlshortener.{domain}` |
-| **Type** | `TXT` |
-| **Value** | `urlshortener-verify={verification_token}` |
-| **TTL** | 300–3600 (рекомендация) |
+| Поле            | Значение                                   |
+|-----------------|--------------------------------------------|
+| **Host / Name** | `_urlshortener.{domain}`                   |
+| **Type**        | `TXT`                                      |
+| **Value**       | `urlshortener-verify={verification_token}` |
+| **TTL**         | 300–3600 (рекомендация)                    |
 
 Пример для `go.company.ru`:
 
@@ -156,8 +156,8 @@ _urlshortener.go.company.ru.  IN  TXT  "urlshortener-verify=a1b2c3d4-e5f6-7890-a
 ```
 
 **Apex-домен** (`company.ru`, без поддомена): host =
-`_urlshortener.company.ru` (не `@`). Wildcard `*.company.ru` в v1 **не**
-поддерживается.
+`_urlshortener.company.ru` (не `@`). Зарегистрировать сам wildcard
+`*.company.ru` как custom domain **нельзя** (валидация FQDN).
 
 Проверка: публичный DNS resolver (конфиг `custom_domains.dns_resolvers`),
 таймаут `dns_lookup_timeout` (default 5s). Совпадение **точное** по значению
@@ -165,13 +165,24 @@ TXT (после trim кавычек). Несколько TXT на host — до�
 
 ### DNS: маршрутизация (после TXT)
 
-| Тип домена | Запись | Host | Value |
-|------------|--------|------|-------|
-| Поддомен (`go.company.ru`) | `CNAME` | `go.company.ru` | `custom_domains.routing_cname_target` |
-| Apex (`company.ru`) | `A` или `ALIAS/ANAME` | `@` | IP edge / alias на target (в UI — отдельная подсказка) |
+CNAME на «простой» apex (`@`) у большинства регистраторов **нельзя** —
+в инструкциях всегда **wildcard**:
+
+| Тип домена                 | Запись        | Host           | Value                                                  |
+|----------------------------|---------------|----------------|--------------------------------------------------------|
+| Поддомен (`go.company.ru`) | `CNAME`       | `*.company.ru` | `custom_domains.routing_cname_target`                  |
+| Apex (`company.ru`)        | `CNAME`       | `*.company.ru` | то же                                                  |
+| Apex bare (`@`)            | `A` / `ALIAS` | `@`            | IP / alias на edge (опционально, отдельно от wildcard) |
+
+Пример target в prod: `edge.kkoroch.ru` (`custom_domains.routing_cname_target`).
 
 `POST /custom-domains/verify` проверяет TXT **и** routing за один вызов.
-Домен становится `active` только когда оба условия выполнены.
+Routing-probe: для FQDN с ≥3 labels — CNAME на сам `{domain}`; для apex —
+на `_urlshortener-edge.{domain}` (синтетика под wildcard). Домен становится
+`active` только когда оба условия выполнены.
+
+Первый label `routing_cname_target` (по умолчанию `edge`) **зарезервирован** —
+`POST /subdomains` с таким именем → `400 subdomain_validation_error`.
 
 ### Интеграция с короткими ссылками
 
@@ -223,14 +234,15 @@ custom_domains:
     - "1.1.1.1"
   txt_host_prefix: "_urlshortener"
   txt_value_prefix: "urlshortener-verify="
+  # Полный CNAME-target; первый label (`edge`) нельзя как platform subdomain.
   routing_cname_target: "edge.kkoroch.ru"
   reverify_interval: 720h     # 30d; 0 = выключено
 ```
 
 ### Permissions (API keys / collaboration)
 
-| Resource | Actions | Примечание |
-|----------|---------|------------|
+| Resource         | Actions                        | Примечание                 |
+|------------------|--------------------------------|----------------------------|
 | `custom_domains` | `read`, `write`, `delete`, `*` | CRUD доменов в scope ключа |
 
 `write` покрывает `POST /custom-domains` и `POST /custom-domains/verify`.
@@ -255,7 +267,7 @@ sequenceDiagram
     API ->> PG: INSERT pending
     API -->> UI: TXT + CNAME инструкции
     User ->> DNS: TXT _urlshortener.go.company.ru
-    User ->> DNS: CNAME go → edge
+    User ->> DNS: CNAME *.company.ru → edge.kkoroch.ru
     UI ->> API: POST /custom-domains/verify
     API ->> DNS: resolve TXT + CNAME
     API ->> PG: status=active
@@ -280,16 +292,16 @@ create/PATCH. Состояние считает сервер.
 
 Приоритет (выше → важнее):
 
-| Приоритет | `inactive_reason`   | Условие |
-|-----------|---------------------|---------|
-| 70 | `custom_domain_deleted` | custom domain soft-deleted |
-| 70 | `subdomain_deleted` | subdomain soft-deleted |
-| 60 | `expired` | `expiration_time <= now` |
-| 50 | `max_clicks` | `clicks_count >= max_clicks` |
-| 40 | `budget` | `spent >= budget` |
-| 30 | `targets_exhausted` | нет активных targets |
-| 20 | `archived` | `is_archived = true` |
-| 10 | `not_started` | `beginning_time > now` |
+| Приоритет | `inactive_reason`       | Условие                      |
+|-----------|-------------------------|------------------------------|
+| 70        | `custom_domain_deleted` | custom domain soft-deleted   |
+| 70        | `subdomain_deleted`     | subdomain soft-deleted       |
+| 60        | `expired`               | `expiration_time <= now`     |
+| 50        | `max_clicks`            | `clicks_count >= max_clicks` |
+| 40        | `budget`                | `spent >= budget`            |
+| 30        | `targets_exhausted`     | нет активных targets         |
+| 20        | `archived`              | `is_archived = true`         |
+| 10        | `not_started`           | `beginning_time > now`       |
 
 Примеры:
 
@@ -333,21 +345,22 @@ create/PATCH. Состояние считает сервер.
 
 **Target:**
 
-| Поле | Тип | Описание |
-|------|-----|----------|
-| `id` | `i64` | Стабильный id (ro после create) |
-| `url` | `string` | Destination; может содержать `{макросы}` / `{{макросы}}` |
-| `weight` | `u8` | Доля трафика % (1–100). **Σ weight = 100** |
-| `max_clicks` | `i64?` | Soft-лимит кликов на target |
-| `clicks_count` | `i64` | ro |
-| `cpc` | `string?` | Стоимость клика (decimal). `null` → не тарифицируется |
-| `budget` | `string?` | Soft-бюджет target |
-| `spent` | `string` | ro |
-| `is_active` | `bool` | Soft-выключение при лимите/бюджете |
-| `utm` | `UtmConfig?` | См. ниже |
-| `position` | `i16` | Порядок в UI |
+| Поле           | Тип          | Описание                                                 |
+|----------------|--------------|----------------------------------------------------------|
+| `id`           | `i64`        | Стабильный id (ro после create)                          |
+| `url`          | `string`     | Destination; может содержать `{макросы}` / `{{макросы}}` |
+| `weight`       | `u8`         | Доля трафика % (1–100). **Σ weight = 100**               |
+| `max_clicks`   | `i64?`       | Soft-лимит кликов на target                              |
+| `clicks_count` | `i64`        | ro                                                       |
+| `cpc`          | `string?`    | Стоимость клика (decimal). `null` → не тарифицируется    |
+| `budget`       | `string?`    | Soft-бюджет target                                       |
+| `spent`        | `string`     | ro                                                       |
+| `is_active`    | `bool`       | Soft-выключение при лимите/бюджете                       |
+| `utm`          | `UtmConfig?` | См. ниже                                                 |
+| `position`     | `i16`        | Порядок в UI                                             |
 
 Валидация:
+
 - `targets.len() ∈ [1, max_targets]` (конфиг, default 10); `Σ weight = 100`
 - `target.budget` без `target.cpc` → `400 cpc_budget_validation_error`
 - `cpc` без `budget` — **ок**; CPC/budget/max_clicks на targets **независимы**
@@ -409,11 +422,11 @@ Human-only для CPC/`spent`/лимитов кампании; боты в raw �
 }
 ```
 
-| Поле | При create/PATCH | На редиректе |
-|------|------------------|--------------|
-| `platform` | пресет дефолтов + выбор **extractor'а** платформы | выбирает, откуда читать макросы |
-| `required` | если `true` — `source`/`medium`/`campaign` обязательны в конфиге | **игнорируется**: редирект никогда не падает из‑за UTM |
-| `source`…`term` | шаблоны/`utm_*` для сборки destination | подставляются; пустые → параметр не пишем / в stats `null` |
+| Поле            | При create/PATCH                                                 | На редиректе                                               |
+|-----------------|------------------------------------------------------------------|------------------------------------------------------------|
+| `platform`      | пресет дефолтов + выбор **extractor'а** платформы                | выбирает, откуда читать макросы                            |
+| `required`      | если `true` — `source`/`medium`/`campaign` обязательны в конфиге | **игнорируется**: редирект никогда не падает из‑за UTM     |
+| `source`…`term` | шаблоны/`utm_*` для сборки destination                           | подставляются; пустые → параметр не пишем / в stats `null` |
 
 Сборка query: один `?`, `&`, lowercase `utm_*`, fragment в конце.
 
@@ -440,28 +453,28 @@ resolve(platform, request) → Map<macro_name, Option<value>>
   3) generic fallback: utm_* query, X-Macro-{Name}, X-Utm-{Name}
 ```
 
-| `platform` | Query (типично) | Headers (платформенные / кастомные) | Синтаксис макросов в URL |
-|------------|-----------------|-------------------------------------|--------------------------|
-| `google_ads` | ValueTrack: `keyword`, `campaignid`, `creative`, `network`, …; также `utm_*` | опционально `X-Macro-*` | `{name}` |
-| `yandex_direct` | `{campaign_id}`→`campaign_id`, `ad_id`, `keyword`, `device_type`, …; `utm_*` | опционально `X-Macro-*` | `{name}` |
-| `vkontakte` | `campaign_id`, `ad_id`, … | **кастомные заголовки VK** (см. ниже) — читать в первую очередь | `{name}` |
-| `vk_ads` | `utm_*`, `campaign_id`/`banner_id` как `{{…}}` | **кастомные заголовки VK Ads** + generic `X-Macro-*` | `{{name}}` |
-| `my_target` | `{{campaign_id}}`, `{{banner_id}}`, `{{geo}}`, … | кастомные заголовки myTarget при наличии | `{{name}}` |
-| `custom` / `null` | только generic: `utm_*` + `X-Macro-*` / `X-Utm-*` | generic | `{name}` и `{{name}}` |
+| `platform`        | Query (типично)                                                              | Headers (платформенные / кастомные)                             | Синтаксис макросов в URL |
+|-------------------|------------------------------------------------------------------------------|-----------------------------------------------------------------|--------------------------|
+| `google_ads`      | ValueTrack: `keyword`, `campaignid`, `creative`, `network`, …; также `utm_*` | опционально `X-Macro-*`                                         | `{name}`                 |
+| `yandex_direct`   | `{campaign_id}`→`campaign_id`, `ad_id`, `keyword`, `device_type`, …; `utm_*` | опционально `X-Macro-*`                                         | `{name}`                 |
+| `vkontakte`       | `campaign_id`, `ad_id`, …                                                    | **кастомные заголовки VK** (см. ниже) — читать в первую очередь | `{name}`                 |
+| `vk_ads`          | `utm_*`, `campaign_id`/`banner_id` как `{{…}}`                               | **кастомные заголовки VK Ads** + generic `X-Macro-*`            | `{{name}}`               |
+| `my_target`       | `{{campaign_id}}`, `{{banner_id}}`, `{{geo}}`, …                             | кастомные заголовки myTarget при наличии                        | `{{name}}`               |
+| `custom` / `null` | только generic: `utm_*` + `X-Macro-*` / `X-Utm-*`                            | generic                                                         | `{name}` и `{{name}}`    |
 
 **VK / VK Ads — кастомные заголовки.** Платформа (или промежуточный прокси)
 может не класть макросы в query короткой ссылки, а отдать их только в headers.
 Extractor `vkontakte` / `vk_ads` обязан читать известный набор (расширяемый в
 конфиге `short.macro_extractors.vk_ads.headers`):
 
-| Header (пример / конфиг) | Макрос |
-|--------------------------|--------|
+| Header (пример / конфиг)                    | Макрос        |
+|---------------------------------------------|---------------|
 | `X-Vk-Campaign-Id` / `X-VK-Ads-Campaign-Id` | `campaign_id` |
-| `X-Vk-Banner-Id` / `X-VK-Ads-Banner-Id` | `banner_id` |
-| `X-Vk-Ad-Id` | `ad_id` |
-| `X-Vk-Geo` / `X-VK-Ads-Geo` | `geo` |
-| `X-Vk-Gender` / `X-VK-Ads-Gender` | `gender` |
-| `X-Vk-Age` / `X-VK-Ads-Age` | `age` |
+| `X-Vk-Banner-Id` / `X-VK-Ads-Banner-Id`     | `banner_id`   |
+| `X-Vk-Ad-Id`                                | `ad_id`       |
+| `X-Vk-Geo` / `X-VK-Ads-Geo`                 | `geo`         |
+| `X-Vk-Gender` / `X-VK-Ads-Gender`           | `gender`      |
+| `X-Vk-Age` / `X-VK-Ads-Age`                 | `age`         |
 
 Точный whitelist — в yaml; при появлении официальных имён от VK — правка
 конфига без смены контракта API. Если header нет — значение `null` в stats,
@@ -471,13 +484,13 @@ Extractor `vkontakte` / `vk_ads` обязан читать известный н
 
 ### Пресеты `source` / `medium`
 
-| `platform` | source | medium | Типичные campaign/content/term |
-|------------|--------|--------|--------------------------------|
-| `google_ads` | `google` | `cpc` | `{network}` / `{creative}` / `{keyword}` |
-| `yandex_direct` | `yandex` | `cpc` | `{campaign_id}` / `{ad_id}` / `{keyword}` |
-| `vkontakte` | `vkontakte` | `cpc` | `{campaign_id}` / `{ad_id}` |
-| `vk_ads` | `vk_ads` | `cpc` | `{{campaign_id}}` / `{{banner_id}}` |
-| `my_target` | `mycom` | `cpc` | `{{campaign_id}}` / `{{banner_id}}` / `{{geo}}.{{gender}}.{{age}}` |
+| `platform`      | source      | medium | Типичные campaign/content/term                                     |
+|-----------------|-------------|--------|--------------------------------------------------------------------|
+| `google_ads`    | `google`    | `cpc`  | `{network}` / `{creative}` / `{keyword}`                           |
+| `yandex_direct` | `yandex`    | `cpc`  | `{campaign_id}` / `{ad_id}` / `{keyword}`                          |
+| `vkontakte`     | `vkontakte` | `cpc`  | `{campaign_id}` / `{ad_id}`                                        |
+| `vk_ads`        | `vk_ads`    | `cpc`  | `{{campaign_id}}` / `{{banner_id}}`                                |
+| `my_target`     | `mycom`     | `cpc`  | `{{campaign_id}}` / `{{banner_id}}` / `{{geo}}.{{gender}}.{{age}}` |
 
 ### Справочник макросов (кратко)
 
@@ -643,31 +656,31 @@ sequenceDiagram
 
 ## Сводная таблица эндпоинтов
 
-| Метод    | Путь                             | Авторизация              | Описание                        |
-|----------|----------------------------------|--------------------------|---------------------------------|
-| `POST`   | `/shorts/{scope:int?}`           | 🔒 Bearer \| X-Api-Key   | Создание короткой ссылки        |
-| `GET`    | `/shorts/{scope:int?}`           | 🔒 Bearer \| X-Api-Key   | Список ссылок                   |
-| `POST`   | `/shorts/{scope:int?}/bulk`      | 🔒 Bearer \| X-Api-Key   | Массовое создание ссылок        |
-| `DELETE` | `/shorts/bulk`                   | 🔒 Bearer \| X-Api-Key   | Массовое удаление ссылок        |
-| `GET`    | `/shorts/availability`           | 🔒 Bearer \| X-Api-Key   | Проверка доступности short_name |
-| `POST`   | `/folders/{scope:int?}/bulk`     | 🔒 Bearer \| X-Api-Key   | Массовое создание папок         |
-| `DELETE` | `/folders/bulk`                  | 🔒 Bearer \| X-Api-Key   | Массовое удаление папок         |
-| `GET`    | `/folders/{scope:int?}`          | 🔒 Bearer \| X-Api-Key   | Список папок                    |
-| `PATCH`  | `/folders/{folder_id:uuid}/move` | 🔒 Bearer \| X-Api-Key   | Перемещение папки               |
-| `PATCH`  | `/folders/{folder_id:uuid}`      | 🔒 Bearer \| X-Api-Key   | Обновление папки                |
-| `GET`    | `/{short_name:str}`              | —                        | Редирект                        |
-| `PATCH`  | `/shorts/bulk`                   | 🔒 Bearer \| X-Api-Key   | Массовое обновление ссылок      |
-| `POST`   | `/scopes`                        | 🔒 Bearer                | Создание scope                  |
-| `GET`    | `/scopes`                        | 🔒 Bearer                | Список scope                    |
-| `PATCH`  | `/scopes/{scope:int?}`           | 🔒 Bearer \| X-Api-Key   | Обновление scope                |
-| `DELETE` | `/scopes/{scope:int?}`           | 🔒 Bearer                | Удаление scope                  |
-| `POST`   | `/subdomains`                    | 🔒 Bearer \| X-Api-Key   | Создание subdomain              |
-| `GET`    | `/subdomains`                    | 🔒 Bearer \| X-Api-Key   | Список subdomains               |
-| `DELETE` | `/subdomains/{subdomain:str}`    | 🔒 Bearer \| X-Api-Key   | Удаление subdomain              |
-| `POST`   | `/custom-domains`                | 🔒 Bearer \| X-Api-Key   | Регистрация домена + TXT инструкции |
-| `GET`    | `/custom-domains`                | 🔒 Bearer \| X-Api-Key   | Список custom domains           |
-| `POST`   | `/custom-domains/verify`         | 🔒 Bearer \| X-Api-Key   | Проверка TXT + routing          |
-| `DELETE` | `/custom-domains`                | 🔒 Bearer \| X-Api-Key   | Удаление custom domain          |
+| Метод    | Путь                             | Авторизация            | Описание                            |
+|----------|----------------------------------|------------------------|-------------------------------------|
+| `POST`   | `/shorts/{scope:int?}`           | 🔒 Bearer \| X-Api-Key | Создание короткой ссылки            |
+| `GET`    | `/shorts/{scope:int?}`           | 🔒 Bearer \| X-Api-Key | Список ссылок                       |
+| `POST`   | `/shorts/{scope:int?}/bulk`      | 🔒 Bearer \| X-Api-Key | Массовое создание ссылок            |
+| `DELETE` | `/shorts/bulk`                   | 🔒 Bearer \| X-Api-Key | Массовое удаление ссылок            |
+| `GET`    | `/shorts/availability`           | 🔒 Bearer \| X-Api-Key | Проверка доступности short_name     |
+| `POST`   | `/folders/{scope:int?}/bulk`     | 🔒 Bearer \| X-Api-Key | Массовое создание папок             |
+| `DELETE` | `/folders/bulk`                  | 🔒 Bearer \| X-Api-Key | Массовое удаление папок             |
+| `GET`    | `/folders/{scope:int?}`          | 🔒 Bearer \| X-Api-Key | Список папок                        |
+| `PATCH`  | `/folders/{folder_id:uuid}/move` | 🔒 Bearer \| X-Api-Key | Перемещение папки                   |
+| `PATCH`  | `/folders/{folder_id:uuid}`      | 🔒 Bearer \| X-Api-Key | Обновление папки                    |
+| `GET`    | `/{short_name:str}`              | —                      | Редирект                            |
+| `PATCH`  | `/shorts/bulk`                   | 🔒 Bearer \| X-Api-Key | Массовое обновление ссылок          |
+| `POST`   | `/scopes`                        | 🔒 Bearer              | Создание scope                      |
+| `GET`    | `/scopes`                        | 🔒 Bearer              | Список scope                        |
+| `PATCH`  | `/scopes/{scope:int?}`           | 🔒 Bearer \| X-Api-Key | Обновление scope                    |
+| `DELETE` | `/scopes/{scope:int?}`           | 🔒 Bearer              | Удаление scope                      |
+| `POST`   | `/subdomains`                    | 🔒 Bearer \| X-Api-Key | Создание subdomain                  |
+| `GET`    | `/subdomains`                    | 🔒 Bearer \| X-Api-Key | Список subdomains                   |
+| `DELETE` | `/subdomains/{subdomain:str}`    | 🔒 Bearer \| X-Api-Key | Удаление subdomain                  |
+| `POST`   | `/custom-domains`                | 🔒 Bearer \| X-Api-Key | Регистрация домена + TXT инструкции |
+| `GET`    | `/custom-domains`                | 🔒 Bearer \| X-Api-Key | Список custom domains               |
+| `POST`   | `/custom-domains/verify`         | 🔒 Bearer \| X-Api-Key | Проверка TXT + routing              |
+| `DELETE` | `/custom-domains`                | 🔒 Bearer \| X-Api-Key | Удаление custom domain              |
 
 ---
 

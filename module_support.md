@@ -2,7 +2,7 @@
 
 Модуль **обращений в поддержку** и жалоб на контент.
 
-In-app inbox, preferences, SSE и campaigns — в
+In-app inbox, preferences, polling и campaigns — в
 [`module_notification`](module_notification.md).
 
 **Принципы v1:**
@@ -404,4 +404,4 @@ object_storage:
 | `DELETE` | `/support/admin/tickets/{id}` | service | Hard delete |
 | `GET` | `/support/attachments/{id}` | 🔒 / service | ACL download |
 
-Inbox / prefs / SSE / campaigns — см. [`module_notification`](module_notification.md).
+Inbox / prefs / polling / campaigns — см. [`module_notification`](module_notification.md).

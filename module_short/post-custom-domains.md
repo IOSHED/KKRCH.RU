@@ -75,9 +75,9 @@
     },
     "routing": {
       "type": "CNAME",
-      "host": "go.company.ru",
+      "host": "*.company.ru",
       "value": "edge.kkoroch.ru",
-      "note": "Настраивается после успешной TXT-верификации; для apex-домена — A/ALIAS по инструкции в UI"
+      "note": "CNAME на apex (@) у регистраторов обычно нельзя — ставьте wildcard `*.зона`. Для самого apex дополнительно A/ALIAS на edge. После TXT-верификации."
     }
   }
 }

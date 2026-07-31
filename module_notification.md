@@ -1,11 +1,11 @@
 # Notification Module
 
-Модуль **in-app inbox**, preferences, SSE (opt-in) и admin campaigns.
+Модуль **in-app inbox**, preferences и admin campaigns.
 
 Тикеты / жалобы / admin bot — в [`module_support`](module_support.md).
 Ответ оператора создаёт `user_notifications` с `kind=support_reply`.
 
-> **Статус:** реализовано (inbox, preferences, SSE ticket, campaigns). Ниже — контракт.
+> **Статус:** реализовано (inbox, preferences, polling ≥15 с, campaigns).
 
 ---
 
@@ -16,7 +16,7 @@
 | 🎯 | Use cases | [ссылка](#use-cases) |
 | 🗄️ | Модель данных | [ссылка](#модель-данных) |
 | 🔔 | Каналы | [ссылка](#каналы) |
-| ⚡ | Near-instant | [ссылка](#near-instant) |
+| ⚡ | Polling | [ссылка](#polling) |
 | 📋 | Эндпоинты | [ссылка](#сводная-таблица-эндпоинтов) |
 
 Endpoint-файлы: [`module_notification/`](module_notification/).
@@ -27,7 +27,7 @@ Endpoint-файлы: [`module_notification/`](module_notification/).
 
 | Сценарий | Кто | Как |
 |----------|-----|-----|
-| Ответ поддержки в UI | User | inbox + polling / SSE |
+| Ответ поддержки в UI | User | inbox + polling ≥15 с |
 | Анонс релиза / promo | Admin | `POST /support/admin/notifications` (campaign) |
 | Opt-out promo | User | `PATCH /notifications/preferences` |
 
@@ -80,8 +80,8 @@ Promo-рассылки — только при `in_app_promo=true` (opt-in). О�
 | Канал | v1 |
 |--------|-----|
 | In-app inbox | да |
-| Polling | да (default) |
-| SSE | optional |
+| Polling | да (**≥15 с**) |
+| SSE | нет |
 | Telegram user | нет |
 | Email user | нет |
 | Telegram admin | да — в [Support Bot](../support_bot.md) (текст + фото тикета) |
@@ -92,20 +92,15 @@ Prefs: `GET/PATCH /notifications/preferences`.
 
 ---
 
-## Near-instant
+## Polling
 
 1. Admin reply (`POST /support/admin/tickets/{id}/messages`, `is_internal=false`)
    → при `in_app_support` создаётся `user_notifications` (`kind=support_reply`,
    `payload.ticket_id`). Internal note уведомление **не** создаёт.
-2. **Default клиент:** `GET /notifications` polling **2 с** (панель открыта) /
-   **5 с** (фон). Параметр `?since=` опционален.
-3. **SSE opt-in:** `POST /notifications/stream-ticket` → одноразовый ticket
-   (TTL 2 мин) → `GET /notifications/stream?ticket=` **без** access_token в
-   query/логах. Сейчас endpoint отдаёт **одноразовый** `event: snapshot` с
-   текущим inbox и закрывает соединение (не long-lived Redis pub/sub).
-   Near-instant в v1 обеспечивается polling.
+2. Клиент: `GET /notifications` с интервалом **≥ 15 с** (панель открыта и фон).
+   Параметр `?since=` опционален.
 
-Default UX: **polling 2–5 с**, SSE opt-in — меньше долгоживущих соединений.
+SSE / stream-ticket в v1 **не** поддерживаются.
 
 ---
 
@@ -116,6 +111,4 @@ Default UX: **polling 2–5 с**, SSE opt-in — меньше долгоживу
 | `GET` | `/notifications` | 🔒 | Inbox |
 | `PATCH` | `/notifications/{id}/read` | 🔒 | Read |
 | `GET`/`PATCH` | `/notifications/preferences` | 🔒 | Prefs / opt-out promo |
-| `POST` | `/notifications/stream-ticket` | 🔒 | One-time SSE ticket |
-| `GET` | `/notifications/stream` | stream-ticket | SSE |
 | `POST` | `/support/admin/notifications` | service | Campaign |

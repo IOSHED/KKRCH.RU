@@ -12,7 +12,7 @@
 |                      | 4. **TXT check:** резолв `_urlshortener.{domain}` (или apex-правило из конфига), ищет `urlshortener-verify={token}` |
 |                      | 5. TXT не найден → `status` остаётся `pending_verification`, `last_check_error` заполняется, **200** с `verified: false` |
 |                      | 6. TXT найден → `verified_at = now()`, `status = verified`                                          |
-|                      | 7. **Routing check:** CNAME `{domain}` → `custom_domains.routing_cname_target` (или A для apex)     |
+|                      | 7. **Routing check:** CNAME-probe под wildcard `*.{зона}` → `custom_domains.routing_cname_target` |
 |                      | 8. Routing ок → `status = active`, `routing_checked_at = now()`                                       |
 |                      | 9. Routing не ок при успешном TXT → `status = verified`, в ответе `routing_ok: false` + подсказка   |
 |                      | 10. Пишет `last_check_at`; best-effort обновляет Redis-кеш списка                                   |
@@ -62,11 +62,11 @@
   "verified": true,
   "routing_ok": false,
   "last_check_at": "2026-07-30T10:20:00Z",
-  "last_check_error": "CNAME go.company.ru does not point to edge.kkoroch.ru",
+  "last_check_error": "CNAME probe go.company.ru does not point to edge.kkoroch.ru (ожидается запись *.company.ru → edge.kkoroch.ru)",
   "dns_instructions": {
     "routing": {
       "type": "CNAME",
-      "host": "go.company.ru",
+      "host": "*.company.ru",
       "value": "edge.kkoroch.ru"
     }
   }

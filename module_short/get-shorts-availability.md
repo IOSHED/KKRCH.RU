@@ -4,15 +4,16 @@
 
 |                | Описание                                                                                                  |
 |----------------|-----------------------------------------------------------------------------------------------------------|
-| **Назначение** | Проверяет доступность пары `(subdomain, short_name)`                                                      |
+| **Назначение** | Проверяет доступность пары `(subdomain|custom_domain, short_name)`                                |
 | **Auth**       | Bearer или X-Api-Key                                                                                      |
-| **Логика**     | 1. Валидирует `short_name` и опциональный `subdomain`                                                     |
+| **Логика**     | 1. Валидирует `short_name` и host (`subdomain` XOR `custom_domain`)                                       |
 |                | 2. Redis bloom: если ключ есть и ответ «точно свободно» → `available: true` без Postgres                  |
 |                | 3. Иначе (ключ bloom отсутствует / «возможно занято» / Redis недоступен) — точный SELECT в Postgres       |
-|                | &nbsp;&nbsp;&nbsp;по unique `idx_shorts_resolve_*`; PG bloom (`idx_shorts_name_bloom`) — prefilter планировщика |
+|                | &nbsp;&nbsp;&nbsp;по unique `idx_shorts_resolve_*` / `idx_shorts_custom_domain_short_name`                 |
 |                | 4. `available: false`, если пара уже занята                                                               |
 | **Параметры**  | `short_name:str` - имя ссылки                                                                             |
-|                | `subdomain:str?` - поддомен                                                                               |
+|                | `subdomain:str?` - поддомен платформы                                                                     |
+|                | `custom_domain:str?` - собственный домен (FQDN); взаимоисключающ с `subdomain`                            |
 | **Кеш**        | Redis bloom; при miss/потере ключа — Postgres (unique + PG bloom index)                                   |
 
 ---
