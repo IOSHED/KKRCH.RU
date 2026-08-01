@@ -669,7 +669,7 @@ sequenceDiagram
 | `DELETE` | `/shorts/bulk`                   | 🔒 Bearer \| X-Api-Key | Массовое удаление ссылок            |
 | `GET`    | `/shorts/availability`           | 🔒 Bearer \| X-Api-Key | Проверка доступности short_name     |
 | `POST`   | `/folders/{scope:int?}/bulk`     | 🔒 Bearer \| X-Api-Key | Массовое создание папок             |
-| `DELETE` | `/folders/bulk`                  | 🔒 Bearer \| X-Api-Key | Массовое удаление папок             |
+| `DELETE` | `/folders/bulk`                  | 🔒 Bearer \| X-Api-Key | Массовое удаление папок (`on_shorts`) |
 | `GET`    | `/folders/{scope:int?}`          | 🔒 Bearer \| X-Api-Key | Список папок                        |
 | `PATCH`  | `/folders/{folder_id:uuid}/move` | 🔒 Bearer \| X-Api-Key | Перемещение папки                   |
 | `PATCH`  | `/folders/{folder_id:uuid}`      | 🔒 Bearer \| X-Api-Key | Обновление папки                    |
