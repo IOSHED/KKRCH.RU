@@ -8,7 +8,7 @@
 | **Auth**             | Bearer или X-Api-Key                                                                                                                                         |
 | **Логика**           | 1. Валидирует поля: `targets`, `short_name`, `subdomain`, `tags`, `set_password`, UTM/CPC                                                                    |
 |                      | 2. `Σ targets[].weight = 100`; каждый `url` на любой домен из `short.base_domains` (или его поддомен) → 400 `recursive_redirect_error`                       |
-|                      | 3. Проверка каждого `targets[].url` через Yandex Safe Browsing → 400 `long_url_unsafe_error`; при таймауте создаётся с внутренним `url_safety_needs_recheck` |
+|                      | 3. Ссылка создаётся сразу; Yandex Safe Browsing — async после commit (`url_safety_needs_recheck`); при Unsafe → `inactive_reason=url_unsafe` |
 |                      | 4. Если `set_password` задан — хеширует пароль через Argon2 (параметры из `short.argon2` конфига)                                                            |
 |                      | 5. Если `short_name` содержит `{random_suffix=N}` — разрешает шаблон через `RandomSuffixCalculatorService`:                                                  |
 |                      | &nbsp;&nbsp;&nbsp;- N ≤ порога: sequential base58-счётчик (таблица `short_id_blocks`)                                                                        |
@@ -34,7 +34,7 @@
 | macro_validation_error      | 400 | Битый синтаксис макроса в url / UTM                                                    |
 | password_valivadion_error   | 400 | Пароль должен быть длиной от 4 до 128 символов                                         |
 | recursive_redirect_error    | 400 | url указывает на домен из `short.base_domains` или его поддомен (рекурсивный редирект) |
-| long_url_unsafe_error       | 400 | url помечен Yandex Safe Browsing как опасный (malware, phishing и т.п.)                |
+| long_url_unsafe_error       | 400 | (legacy) sync-блок; сейчас Unsafe обрабатывается async → `url_unsafe` |
 | short_name_validation_error | 400 | Ошибка валидации шаблона для short_name                                                |
 | tag_validation_error        | 400 | Ошибка в названии tag                                                                  |
 | validation_error            | 400 | Прочие ошибки валидации (password length, schedule, …)                                 |

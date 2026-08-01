@@ -11,7 +11,7 @@
 |                      | 2. Для элементов с `set_password` параллельно вычисляются Argon2-хеши                   |
 |                      | 3. Если передан `targets` — **full replace** набора: с `id` обновление, без `id` create;|
 |                      | &nbsp;&nbsp;&nbsp;отсутствующие id удаляются (клики: FK SET NULL)                       |
-|                      | 4. Safe Browsing только для `targets[].url`, которые реально меняются / новые           |
+|                      | 4. Safe Browsing async при смене `targets[].url` (после commit → Safe / `url_unsafe`) |
 |                      | 5. Bulk UPDATE только для ссылок текущего пользователя                                  |
 |                      | 6. Не найденные ID → в `errors` с `kind = not_found`                                    |
 |                      | 7. После commit инвалидируется Redis-версия scope + resolve keys                        |
@@ -31,7 +31,7 @@
 | max_clicks_validation_error | 400 | Глобальный `max_clicks` < суммы `targets[].max_clicks`                                               |
 | budget_validation_error     | 400 | Глобальный `budget` < суммы `targets[].budget`                                                       |
 | utm_validation_error        | 400 | Обязательные UTM не заполнены                                                                        |
-| long_url_unsafe_error       | 400 | url помечен Yandex Safe Browsing как опасный; проверяется только если url меняется (batch)           |
+| long_url_unsafe_error       | 400 | (legacy) sync-блок; Unsafe теперь async → `inactive_reason=url_unsafe`           |
 | short_name_validation_error | 400 | Ошибка валидации шаблона для short_name                                                              |
 | tag_validation_error        | 400 | Ошибка в названии tag                                                                                |
 | validation_error            | 400 | Прочие ошибки валидации                                                                              |

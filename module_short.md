@@ -301,6 +301,7 @@ create/PATCH. Состояние считает сервер.
 |-----------|-------------------------|------------------------------|
 | 70        | `custom_domain_deleted` | custom domain soft-deleted   |
 | 70        | `subdomain_deleted`     | subdomain soft-deleted       |
+| 65        | `url_unsafe`            | Safe Browsing: malware/phish |
 | 60        | `expired`               | `expiration_time <= now`     |
 | 50        | `max_clicks`            | `clicks_count >= max_clicks` |
 | 40        | `budget`                | `spent >= budget`            |
