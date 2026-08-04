@@ -30,6 +30,7 @@ Frontend открывает дашборды и **поллит** детальн�
 | ↳      | GET /stats/{scope}/overview                 | [ссылка](module_stats/get-stats-overview.md)                   |
 | ↳      | GET /stats/{scope}/series                   | [ссылка](module_stats/get-stats-series.md)                     |
 | ↳      | GET /stats/{scope}/breakdown                | [ссылка](module_stats/get-stats-breakdown.md)                  |
+| ↳      | GET /stats/{scope}/geo                      | [ссылка](module_stats/get-stats-geo.md)                        |
 | ↳      | GET /stats/{scope}/ranking                  | [ссылка](module_stats/get-stats-ranking.md)                    |
 | ↳      | GET /stats/{scope}/shorts/{short_id}        | [ссылка](module_stats/get-stats-short.md)                      |
 
@@ -69,6 +70,7 @@ refresh. Кеш длиннее, чем у series.
 |----|-------|------------|
 | Линия / столбцы по времени | `GET .../series` | клики, spend, bots |
 | Pie / bar по разрезу | `GET .../breakdown` | device, geo, UTM, target, … |
+| Карта кликов | `GET .../geo` | страны / регионы РФ / hex |
 | Таблица топов | `GET .../ranking` | топ ссылок / campaigns / referrers |
 | Карточка ссылки | `GET .../shorts/{id}` | lifetime agg + окно |
 
@@ -404,6 +406,7 @@ stats_rate_limit:
 | `GET` | `/stats/{scope}/overview` | 🔒 Bearer \| X-Api-Key | ❌ | ✅ **всегда** (agg) |
 | `GET` | `/stats/{scope}/series` | 🔒 Bearer \| X-Api-Key | ✅ | ✅ day из agg; hour/фильтры — нет |
 | `GET` | `/stats/{scope}/breakdown` | 🔒 Bearer \| X-Api-Key | ✅ | ✅ только agg-измерения |
+| `GET` | `/stats/{scope}/geo` | 🔒 Bearer \| X-Api-Key | ✅ | ✅ countries/regions из agg; hex — нет |
 | `GET` | `/stats/{scope}/ranking` | 🔒 Bearer \| X-Api-Key | ✅ | ⚠️ ограничено (см. матрицу) |
 | `GET` | `/stats/{scope}/shorts/{short_id}` | 🔒 Bearer \| X-Api-Key | ✅ | ✅ lifetime всегда; window → agg |
 
