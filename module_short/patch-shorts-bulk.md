@@ -2,48 +2,49 @@
 
 ### <span style="background:#FFA726;padding:5px">PATCH</span> `/shorts/bulk`
 
-|                      | Описание                                                                                |
-|----------------------|-----------------------------------------------------------------------------------------|
-| **Назначение**       | Массово редактирует короткие ссылки                                                     |
-| **Auth**             | Bearer или X-Api-Key                                                                    |
-| **Логика**           | 0. Если число элементов превышает лимит (`bulk.max_items`) → 400 `too_many_items_error` |
-|                      | 1. Каждый патч проходит независимую валидацию; невалидные → в `errors` с индексом       |
-|                      | 2. Для элементов с `set_password` параллельно вычисляются Argon2-хеши                   |
-|                      | 3. Если передан `targets` — **full replace** набора: с `id` обновление, без `id` create;|
-|                      | &nbsp;&nbsp;&nbsp;отсутствующие id удаляются (клики: FK SET NULL)                       |
-|                      | 4. Safe Browsing async при смене `targets[].url` (после commit → Safe / `url_unsafe`) |
-|                      | 5. Bulk UPDATE только для ссылок текущего пользователя                                  |
-|                      | 6. Не найденные ID → в `errors` с `kind = not_found`                                    |
-|                      | 7. После commit инвалидируется Redis-версия scope + resolve keys                        |
-| **Инвалидация кеша** | `INCR shorts:scope:{scope}:v`, drop `short:resolve:*` для затронутых                    |
+|                      | Описание                                                                                           |
+|----------------------|----------------------------------------------------------------------------------------------------|
+| **Назначение**       | Массово редактирует короткие ссылки                                                                |
+| **Auth**             | Bearer или X-Api-Key                                                                               |
+| **Логика**           | 0. Если число элементов превышает лимит (`bulk.max_items`) → 400 `too_many_items_error`            |
+|                      | 1. Каждый патч проходит независимую валидацию; невалидные → в `errors` с индексом                  |
+|                      | &nbsp;&nbsp;&nbsp;- непустой `set_password` + `is_captcha=true` в одном патче → `validation_error` |
+|                      | 2. Для элементов с `set_password` параллельно вычисляются Argon2-хеши                              |
+|                      | 3. Если передан `targets` — **full replace** набора: с `id` обновление, без `id` create;           |
+|                      | &nbsp;&nbsp;&nbsp;отсутствующие id удаляются (клики: FK SET NULL)                                  |
+|                      | 4. Safe Browsing async при смене `targets[].url` (после commit → Safe / `url_unsafe`)              |
+|                      | 5. Bulk UPDATE только для ссылок текущего пользователя                                             |
+|                      | 6. Не найденные ID → в `errors` с `kind = not_found`                                               |
+|                      | 7. После commit инвалидируется Redis-версия scope + resolve keys                                   |
+| **Инвалидация кеша** | `INCR shorts:scope:{scope}:v`, drop `short:resolve:*` для затронутых                               |
 
 ---
 
-| Ответ                       | Код | Описание                                                                                             |
-|-----------------------------|-----|------------------------------------------------------------------------------------------------------|
-|                             | 200 | Ссылка обновлена                                                                                     |
-|                             | 207 | Частично обновлены ссылки, в ответе будет информация о том, какие ссылки были обновлены, а какие нет |
-| too_many_items_error        | 400 | Превышен лимит элементов в bulk-запросе (`bulk.max_items`)                                           |
-| long_url_validation_error   | 400 | Некорректный `targets[].url`                                                                         |
-| targets_validation_error    | 400 | Пустой targets / weight / длина                                                                      |
-| cpc_budget_validation_error | 400 | `target.budget` без `target.cpc`                                                                     |
-| utm_validation_error        | 400 | `utm.required` без source/medium/campaign                                                            |
-| max_clicks_validation_error | 400 | Глобальный `max_clicks` < суммы `targets[].max_clicks`                                               |
-| budget_validation_error     | 400 | Глобальный `budget` < суммы `targets[].budget`                                                       |
-| utm_validation_error        | 400 | Обязательные UTM не заполнены                                                                        |
-| long_url_unsafe_error       | 400 | (legacy) sync-блок; Unsafe теперь async → `inactive_reason=url_unsafe`           |
-| short_name_validation_error | 400 | Ошибка валидации шаблона для short_name                                                              |
-| tag_validation_error        | 400 | Ошибка в названии tag                                                                                |
-| validation_error            | 400 | Прочие ошибки валидации                                                                              |
-| auth_error                  | 401 | Не авторизован                                                                                       |
-| permission_denied_error       | 403 | Недостаточно прав у API key |
-| api_key_scope_mismatch_error  | 403 | API key привязан к другому scope |
-| subdomain_not_payed_error   | 402 | Запрошены премиум subdomain для ссылки без его имения                                                |
-| short_name_not_payed_error  | 402 | Превышен лимит коротких ссылок по подписке                                                       |
-| scope_not_found_error       | 404 | Не найден scope или нет к нему доступа                                                               |
-| subdomain_not_found_error   | 404 | Не найден subdomain                                                                                  |
-| short_name_conflict_error   | 409 | Уже существует короткая ссылка с таким short_name в рамках данного subdomain                         |
-| server_error                | 500 | Внутренняя ошибка сервера                                                                            |
+| Ответ                        | Код | Описание                                                                                             |
+|------------------------------|-----|------------------------------------------------------------------------------------------------------|
+|                              | 200 | Ссылка обновлена                                                                                     |
+|                              | 207 | Частично обновлены ссылки, в ответе будет информация о том, какие ссылки были обновлены, а какие нет |
+| too_many_items_error         | 400 | Превышен лимит элементов в bulk-запросе (`bulk.max_items`)                                           |
+| long_url_validation_error    | 400 | Некорректный `targets[].url`                                                                         |
+| targets_validation_error     | 400 | Пустой targets / weight / длина                                                                      |
+| cpc_budget_validation_error  | 400 | `target.budget` без `target.cpc`                                                                     |
+| utm_validation_error         | 400 | `utm.required` без source/medium/campaign                                                            |
+| max_clicks_validation_error  | 400 | Глобальный `max_clicks` < суммы `targets[].max_clicks`                                               |
+| budget_validation_error      | 400 | Глобальный `budget` < суммы `targets[].budget`                                                       |
+| utm_validation_error         | 400 | Обязательные UTM не заполнены                                                                        |
+| long_url_unsafe_error        | 400 | (legacy) sync-блок; Unsafe теперь async → `inactive_reason=url_unsafe`                               |
+| short_name_validation_error  | 400 | Ошибка валидации шаблона для short_name                                                              |
+| tag_validation_error         | 400 | Ошибка в названии tag                                                                                |
+| validation_error             | 400 | Прочие ошибки валидации                                                                              |
+| auth_error                   | 401 | Не авторизован                                                                                       |
+| permission_denied_error      | 403 | Недостаточно прав у API key                                                                          |
+| api_key_scope_mismatch_error | 403 | API key привязан к другому scope                                                                     |
+| subdomain_not_payed_error    | 402 | Запрошены премиум subdomain для ссылки без его имения                                                |
+| short_name_not_payed_error   | 402 | Превышен лимит коротких ссылок по подписке                                                           |
+| scope_not_found_error        | 404 | Не найден scope или нет к нему доступа                                                               |
+| subdomain_not_found_error    | 404 | Не найден subdomain                                                                                  |
+| short_name_conflict_error    | 409 | Уже существует короткая ссылка с таким short_name в рамках данного subdomain                         |
+| server_error                 | 500 | Внутренняя ошибка сервера                                                                            |
 
 ---
 

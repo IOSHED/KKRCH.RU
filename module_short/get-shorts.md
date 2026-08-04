@@ -12,15 +12,16 @@
 
 ---
 
-| Ответ                 | Код | Описание                               |
-|-----------------------|-----|----------------------------------------|
-|                       | 200 | Успешно получено                       |
-| validation_error      | 400 | Ошибка валидации всех полей            |
-| auth_error            | 401 | Не авторизован                         |
-| permission_denied_error       | 403 | Недостаточно прав у API key |
-| api_key_scope_mismatch_error  | 403 | API key привязан к другому scope |
-| scope_not_found_error | 404 | Не найден scope или нет к нему доступа |
-| server_error          | 500 | Внутренняя ошибка сервера              |
+| Ответ                          | Код | Описание                               |
+|--------------------------------|-----|----------------------------------------|
+|                                | 200 | Успешно получено                       |
+| validation_error               | 400 | Ошибка валидации всех полей            |
+| custom_domain_validation_error | 400 | Ошибка валидации `custom_domain`       |
+| auth_error                     | 401 | Не авторизован                         |
+| permission_denied_error        | 403 | Недостаточно прав у API key            |
+| api_key_scope_mismatch_error   | 403 | API key привязан к другому scope       |
+| scope_not_found_error          | 404 | Не найден scope или нет к нему доступа |
+| server_error                   | 500 | Внутренняя ошибка сервера              |
 
 ---
 
@@ -34,6 +35,7 @@
 - `target_url`: текстовый поиск по `targets[].url`
 - `folder_name`: текстовый поиск по folder_name
 - `subdomain`: фильтр по subdomain
+- `custom_domain`: фильтр по собственному домену (FQDN)
 - `folder_id`: UUID папки
 - `tags`: список тегов (передается повторяющимся параметром)
 - `tags_mode`: `any` или `all` (по умолчанию `any`)

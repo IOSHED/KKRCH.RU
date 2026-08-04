@@ -9,6 +9,7 @@
 | **Логика**           | 0. Если число элементов превышает лимит (`bulk.max_items`) → 400 `too_many_items_error`                              |
 |                      | 1. Каждый элемент проходит независимую валидацию; невалидные → в `errors` с индексом                                 |
 |                      | &nbsp;&nbsp;&nbsp;- `recursive_redirect_error` / `long_url_unsafe_error` / `targets_validation_error` — как у create |
+|                      | &nbsp;&nbsp;&nbsp;- `set_password` + `is_captcha=true` → `validation_error` (взаимоисключение, как у create)         |
 |                      | 2. Для валидных элементов параллельно вычисляются Argon2-хеши паролей                                                |
 |                      | 3. Последовательно разрешаются шаблоны `{random_suffix=N}` (sequential или random+retry)                             |
 |                      | 4. Bulk INSERT shorts + short_targets в рамках одной транзакции                                                      |
@@ -36,7 +37,7 @@
 | long_url_unsafe_error       | 400 | url помечен Yandex Safe Browsing как опасный (malware, phishing и т.п.); проверка — batch Lookup API      |
 | short_name_validation_error | 400 | Ошибка валидации шаблона для short_name                                                                   |
 | tag_validation_error        | 400 | Ошибка в названии tag                                                                                     |
-| validation_error            | 400 | Прочие ошибки валидации                                                                                   |
+| validation_error            | 400 | Прочие ошибки валидации (в т.ч. password+CAPTCHA вместе, subdomain+custom_domain)                          |
 | auth_error                  | 401 | Не авторизован                                                                                            |
 | permission_denied_error       | 403 | Недостаточно прав у API key |
 | api_key_scope_mismatch_error  | 403 | API key привязан к другому scope |
