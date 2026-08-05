@@ -71,7 +71,7 @@
   "polling": {
     "recommended_interval_sec": 2,
     "max_interval_sec": 30,
-    "sse_supported": false
+    "sse_supported": true
   }
 }
 ```

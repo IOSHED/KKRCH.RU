@@ -1,7 +1,9 @@
 # Transfer Module (Import / Export)
 
-> **Статус:** контракт / дизайн. HTTP-ручек и миграций в backend **пока нет** —
-> раздел описывает целевой API, не текущую реализацию.
+> **Статус:** HTTP API + миграция `transfer_jobs` + in-process runner
+> (`tokio::spawn` в `http-api`) + SSE. Артефакты — MinIO/S3 prefix `transfer/`
+> (local fallback `transfer.storage_dir`). Адаптеры Linkly/Bitly и ZIP `full` —
+> поэтапно; native export/import shorts и clicks — готовы.
 
 Модуль **массового импорта и экспорта** данных scope: короткие ссылки с
 полной конфигурацией, агрегированная статистика (`link_short_agg`) и
@@ -24,7 +26,7 @@ raw-события кликов (`link_click_events`) в пределах retent
 | 🎯     | Use cases                                   | [ссылка](#use-cases)                                           |
 | 📦     | Что экспортируем / импортируем              | [ссылка](#что-экспортируем--импортируем)                       |
 | 🗜️    | Форматы файлов и сжатие                     | [ссылка](#форматы-файлов-и-сжатие)                             |
-| ⏳     | Jobs, polling, SSE                          | [ссылка](#jobs-polling-sse)                                     |
+| ⏳     | Jobs, SSE                                   | [ссылка](#jobs-sse)                                             |
 | 🔒     | Preflight и лимиты подписки                 | [ссылка](#preflight-и-лимиты-подписки)                          |
 | 🛡️    | Безопасность и скомпрометированный API       | [ссылка](#безопасность-и-скомпрометированный-api)               |
 | 📈     | Import статистики: raw + agg                | [ссылка](#import-статистики-raw--agg)                           |
@@ -61,17 +63,19 @@ raw-события кликов (`link_click_events`) в пределах retent
 sequenceDiagram
     participant C as Клиент
     participant API as HTTP API
-    participant W as transfer-worker
-    participant S as Object storage
+    participant S as MinIO / local
 
     C->>API: POST /transfer/{scope}/exports
-    API-->>C: 202 { job_id, poll_url }
-    loop polling ≥ 2s
-        C->>API: GET .../exports/{job_id}
-        API-->>C: { status: running, progress }
+    API-->>C: 202 { job_id, events_url, download_url }
+    API->>API: tokio::spawn(runner)
+    C->>API: GET .../exports/{job_id}/events (SSE)
+    loop progress
+        API-->>C: event: progress
     end
-    W->>S: stream write .csv.gz
+    API->>S: put transfer/exports/*.csv.gz
+    API-->>C: event: completed
     C->>API: GET .../exports/{job_id}/download
+    API->>S: get object
     API-->>C: 200 Content-Encoding: gzip
 ```
 
@@ -112,6 +116,7 @@ denormalized `target_N_*` при `layout=wide`).
 | `agg_clicks_by_device_json` | `clicks_by_device` |
 | `agg_clicks_by_browser_json` | `clicks_by_browser` |
 | `agg_clicks_by_country_json` | `clicks_by_country` |
+| `agg_clicks_by_region_json` | `clicks_by_region` (`RU-NIZ`, …; см. geo migration) |
 | `agg_clicks_by_status_code_json` | `clicks_by_status_code` |
 | `agg_clicks_by_target_json` | `clicks_by_target` |
 | `agg_clicks_by_utm_source_json` | `clicks_by_utm_source` |
@@ -193,7 +198,7 @@ Content-Length: 18432003
 
 ---
 
-## Jobs, polling, SSE
+## Jobs, SSE
 
 ### Модель job
 
@@ -220,21 +225,29 @@ Content-Length: 18432003
 
 | `status` | Описание |
 |----------|----------|
-| `pending` | В очереди worker'а |
+| `pending` | Создан, runner ещё не стартовал |
 | `running` | Идёт чтение / запись |
 | `completed` | Файл готов к download |
 | `failed` | Ошибка; см. `error.kind` |
 | `cancelled` | Отменён пользователем |
-| `expired` | TTL download истёк; файл удалён |
+| `expired` | TTL download истёк; объект удаляется ILM |
 
-### Polling (основной способ)
+### SSE (основной способ)
+
+Модуль доступен только платным тарифам (`transfer_enabled`). Клиент **не
+поллит** — открывает EventSource на `events_url` из 202 ответа.
 
 | Параметр | Значение |
 |----------|----------|
-| Интервал стартовый | **2 с** |
-| Backoff | ×1.5 каждые 30 с, max **30 с** |
-| Остановка | `status ∈ {completed, failed, cancelled, expired}` |
+| Endpoint | `GET …/exports/{job_id}/events` или `…/imports/{job_id}/events` |
+| `Content-Type` | `text/event-stream` |
+| События | `snapshot`, `progress`, `completed`, `failed`, `cancelled` |
+| `data` | JSON тела job (как в snapshot GET) |
 | Concurrent jobs | 1 active export + 1 active import на scope |
+| Runner | in-process `tokio::spawn` в `http-api` (отдельный worker **не** нужен) |
+
+`GET …/exports/{job_id}` без `/events` — одноразовый snapshot (удобно после
+reconnect); **не** использовать как polling-loop.
 
 `result` при `completed` (export):
 
@@ -248,11 +261,8 @@ Content-Length: 18432003
 }
 ```
 
-### SSE (не v1, зарезервировано)
-
-Опционально в будущем: `GET …/exports/{job_id}?stream=events` с
-`Accept: text/event-stream` — события `progress`, `completed`, `failed`.
-**v1 — только polling**, чтобы не усложнять инфраструктуру и прокси.
+Артефакты: ключи `transfer/…` в том же MinIO bucket, что и support
+(`infrastructure/minio`, ILM `transfer/` ≈ 2d).
 
 ---
 
@@ -387,7 +397,7 @@ short_id,short_name,subdomain,description,folder_path,tags,redirect_type,is_capt
 <summary><b>clicks.ndjson — одна строка = одно событие</b></summary>
 
 ```json
-{"event_id":"…","short_id":10000042,"short_name":"summer-sale","subdomain":null,"target_id":1,"scope_id":10000001,"occurred_at":"2026-07-21T14:03:11Z","ip":"203.0.113.10","geo_country":"RU","geo_city":"Moscow","os":"android","device":"mobile","browser":"chrome","referrer":"https://t.me/…","referrer_domain":"t.me","status_code":302,"ttfb_ms":12,"is_bot":false,"destination_url":"https://example.com/?utm_source=yandex","utm_source":"yandex","utm_medium":"cpc","utm_campaign":"summer","utm_content":null,"utm_term":null,"ad_platform":"yandex_direct","cpc_charged":"12.50","macro_values":{}}
+{"event_id":"…","short_id":10000042,"short_name":"summer-sale","subdomain":null,"target_id":1,"scope_id":10000001,"occurred_at":"2026-07-21T14:03:11Z","ip":"203.0.113.10","geo_country":"RU","geo_region":"RU-MOW","geo_city":"Moscow","geo_lat":55.75,"geo_lon":37.62,"os":"android","device":"mobile","browser":"chrome","referrer":"https://t.me/…","referrer_domain":"t.me","status_code":302,"ttfb_ms":12,"is_bot":false,"destination_url":"https://example.com/?utm_source=yandex","utm_source":"yandex","utm_medium":"cpc","utm_campaign":"summer","utm_content":null,"utm_term":null,"ad_platform":"yandex_direct","cpc_charged":"12.50","macro_values":{}}
 ```
 
 </details>
@@ -522,7 +532,7 @@ Dedicated ручка: [`POST …/imports/preflight`](module_transfer/post-transf
 
 | План | `transfer_enabled` |
 |------|--------------------|
-| FREE | `false` |
+| FREE, FREE_PLUS | `false` |
 | PERSONAL, PRO, BUSINESS, BUSINESS_PLUS | `true` |
 
 Любая **мутирующая** или **data-heavy** ручка transfer (export/import job,
