@@ -85,8 +85,10 @@
 - Публичное API для этого модуля
 - Защита от рекурсивных редиректов: `targets[].url` не может указывать на домены
   из `short.base_domains` (и их поддомены) → `400 recursive_redirect_error`.
-  SPA-пути фронта отдельным reserved-list на `short_name` не блокируются —
-  коллизии с `/api`, `/docs` и т.п. решаются разнесением домена/прокси.
+  Первый сегмент пути не может совпадать с `short.reserved_short_name_segments`
+  (`docs`, `home`, `auth`, … — см. `conf/base.yaml`); иначе nginx/Vite отдадут UI
+  вместо редиректа (в т.ч. на custom domain).
+  Пример: `docs` и `docs/promo` → `400 short_name_validation_error`.
 
 ---
 
@@ -186,8 +188,10 @@ Routing-probe: для FQDN с ≥3 labels — CNAME на сам `{domain}`; дл
 > не `active` — подождать и повторить проверку; повторно сохранять записи у
 > регистратора обычно не нужно.
 
-Первый label `routing_cname_target` (по умолчанию `edge`) **зарезервирован** —
+`short.reserved_subdomains` (по умолчанию `www`) **и** первый label
+`routing_cname_target` (по умолчанию `edge`) **зарезервированы** —
 `POST /subdomains` с таким именем → `400 subdomain_validation_error`.
+`www.{base}` на redirect уже трактуется как apex без subdomain.
 
 ### Интеграция с короткими ссылками
 

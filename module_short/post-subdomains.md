@@ -7,7 +7,7 @@
 | **Назначение**       | Создаёт subdomain (или восстанавливает ранее удалённый)                             |
 | **Auth**             | Bearer или X-Api-Key                                                                  |
 | **Логика**           | 1. Валидирует `name` по правилам домена                                             |
-|                      | 2. Первый label `routing_cname_target` (default `edge`) → 400                       |
+|                      | 2. Reserved: `short.reserved_subdomains` + label `routing_cname_target` → 400 |
 |                      | 3. Если поддомен уже существует и активен — 409                                     |
 |                      | 4. Если поддомен был удалён (`deleted_at IS NOT NULL`) и закреплён за тем же scope: |
 |                      | &nbsp;&nbsp;&nbsp;- Восстанавливает запись (`deleted_at = NULL`)                    |
@@ -27,7 +27,7 @@
 | Ответ                     | Код | Описание                                                                |
 |---------------------------|-----|-------------------------------------------------------------------------|
 | success                   | 201 | Subdomain создан                                                        |
-| subdomain_validation_error | 400 | Невалидное имя / зарезервировано (`edge` и т.п.)                   |
+| subdomain_validation_error | 400 | Невалидное имя / зарезервировано (`www`, `edge`, …)                   |
 | validation_error          | 400 | Ошибка валидации                                                        |
 | auth_error                | 401 | Не авторизован                                                          |
 | permission_denied_error       | 403 | Недостаточно прав у API key |

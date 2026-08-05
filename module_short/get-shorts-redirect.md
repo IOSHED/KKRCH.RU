@@ -35,9 +35,14 @@
 
 - Relative Location сохраняет `Host` (и поддомен): пользователь снова шлёт `GET /{short_name}` с
   `X-Password` / `X-Captcha-Token`.
-- В шаблоне: `{short_name}` (percent-encoded), `{subdomain}` (пусто, если без поддомена).
+- В шаблоне: `{short_name}` (percent-encoded), `{subdomain}` — platform label **или** FQDN
+  custom domain (`host_ns = custom_domain.or(subdomain)`).
   Пример: `/password-form?short_name={short_name}&subdomain={subdomain}`.
-- Опционально `X-Short-Subdomain` — если форма открыта на apex без поддомена в Host.
+- `X-Short-Subdomain` / query `subdomain`:
+  - одно label (`go`) → platform subdomain (override Host на apex/форме);
+  - FQDN с точкой (`go.company.ru`) → custom domain, даже если форма открыта на
+    platform Host (абсолютный `*_form_url_template` в local/prod override).
+  - если `Host` уже custom domain — namespace только из Host (header не подменяет).
 - При `Accept: application/json` → **200** `{ "location": "...", "status": 301|302|… }`
   (нужно для фронтовых форм: `fetch`+`redirect:manual` прячет Location).
 
