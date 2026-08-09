@@ -5,7 +5,7 @@
 |                      | Описание                                                                                                             |
 |----------------------|----------------------------------------------------------------------------------------------------------------------|
 | **Назначение**       | Создаёт укороченные ссылки массово                                                                                   |
-| **Auth**             | Bearer или X-Api-Key                                                                                                 |
+| **Auth**             | Только X-Api-Key (Bearer → 403 `api_key_required_error`)                                                     |
 | **Логика**           | 0. Если число элементов превышает лимит (`bulk.max_items`) → 400 `too_many_items_error`                              |
 |                      | 1. Каждый элемент проходит независимую валидацию; невалидные → в `errors` с индексом                                 |
 |                      | &nbsp;&nbsp;&nbsp;- `recursive_redirect_error` / `long_url_unsafe_error` / `targets_validation_error` — как у create |
@@ -41,6 +41,7 @@
 | auth_error                  | 401 | Не авторизован                                                                                            |
 | permission_denied_error       | 403 | Недостаточно прав у API key |
 | api_key_scope_mismatch_error  | 403 | API key привязан к другому scope |
+| api_key_required_error        | 403 | Endpoint доступен только с X-Api-Key |
 | short_name_not_payed_error  | 402 | Вы имеете уже максимум коротких ссылок для вашей подписки                                                 |
 | scope_not_found_error       | 404 | Не найден scope или нет к нему доступа                                                                    |
 | subdomain_not_found_error   | 404 | Не найден subdomain                                                                                       |

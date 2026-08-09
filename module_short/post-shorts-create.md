@@ -15,9 +15,10 @@
 |                      | &nbsp;&nbsp;&nbsp;- N ≤ порога: sequential base58-счётчик (таблица `short_id_blocks`)                                                        |
 |                      | &nbsp;&nbsp;&nbsp;- N > порога (+ есть subdomain): random + `short_name_reservations` + retry                                                |
 |                      | 6. Сохраняет short + `short_targets` в Postgres                                                                                              |
-|                      | 7. После commit инвалидирует кеш availability и обновляет bloom-фильтр                                                                       |
+|                      | 7. Прогревает Redis resolve-кеш (`shorts:resolve:{ns}:{name}`) с TTL `short.resolve_cache_ttl`                                           |
+|                      | 8. После commit инвалидирует кеш availability и обновляет bloom-фильтр                                                                   |
 | **Параметры**        | `scope_id:int` - индификатор scope                                                                                                           |
-| **Инвалидация кеша** | `INCR shorts:scope:{scope}:v`, очистка `shorts:availability:{subdomain}:{short_name}`, bloom add                                             |
+| **Инвалидация кеша** | `INCR shorts:scope:{scope}:v`, очистка `shorts:availability:{subdomain}:{short_name}`, bloom add; **прогрев** resolve-кеша                 |
 
 Контракт `targets` / CPC / UTM — в [module_short.md](../module_short.md#targets--cpc-несколько-destination-url).
 
