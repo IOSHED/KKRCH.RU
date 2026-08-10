@@ -9,9 +9,10 @@
 полной конфигурацией, агрегированная статистика (`link_short_agg`) и
 raw-события кликов (`link_click_events`) в пределах retention.
 
-Операции **асинхронные**: HTTP API создаёт job, клиент **поллит** статус и
-скачивает готовый файл. Для объёмов от сотен МБ до ГБ — потоковая запись,
-**gzip-сжатие** и форматы, удобные для стриминга (NDJSON / CSV).
+Операции **асинхронные**: HTTP API создаёт job, клиент открывает **SSE**
+(`events_url`) и скачивает готовый файл. Для объёмов от сотен МБ до ГБ —
+потоковая запись, **gzip-сжатие** и форматы, удобные для стриминга
+(NDJSON / CSV). Snapshot `GET …/{job_id}` — после reconnect, не как polling-loop.
 
 > Модуль **не** дублирует `GET /shorts/{scope}` и `GET /stats/*` для UI.
 > Это offline-выгрузка / миграция / резервное копирование / перенос с
@@ -38,10 +39,12 @@ raw-события кликов (`link_click_events`) в пределах retent
 | ↳      | GET /transfer/formats                       | [ссылка](module_transfer/get-transfer-formats.md)              |
 | ↳      | POST /transfer/{scope}/exports                | [ссылка](module_transfer/post-transfer-exports.md)             |
 | ↳      | GET /transfer/{scope}/exports/{job_id}        | [ссылка](module_transfer/get-transfer-exports-job_id.md)     |
+| ↳      | GET /transfer/{scope}/exports/{job_id}/events | [ссылка](module_transfer/get-transfer-exports-job_id-events.md) |
 | ↳      | GET /transfer/{scope}/exports/{job_id}/download | [ссылка](module_transfer/get-transfer-exports-job_id-download.md) |
 | ↳      | POST /transfer/{scope}/imports                | [ссылка](module_transfer/post-transfer-imports.md)           |
 | ↳      | POST /transfer/{scope}/imports/preflight      | [ссылка](module_transfer/post-transfer-imports-preflight.md) |
 | ↳      | GET /transfer/{scope}/imports/{job_id}          | [ссылка](module_transfer/get-transfer-imports-job_id.md)     |
+| ↳      | GET /transfer/{scope}/imports/{job_id}/events   | [ссылка](module_transfer/get-transfer-imports-job_id-events.md) |
 | ↳      | GET /transfer/{scope}/imports/{job_id}/errors   | [ссылка](module_transfer/get-transfer-imports-job_id-errors.md) |
 | ↳      | DELETE /transfer/{scope}/jobs/{job_id}        | [ссылка](module_transfer/delete-transfer-jobs-job_id.md)     |
 
@@ -176,8 +179,8 @@ README.txt             # краткая расшифровка для челов
 
 | Направление | Поведение |
 |-------------|-----------|
-| **Download** | Файл **всегда** доступен сжатым. Query `compress=gzip` (default) или `compress=none` для raw (не рекомендуется > 10 MB). Заголовок ответа: `Content-Encoding: gzip`, `Content-Type` исходного формата, `Content-Disposition: attachment; filename*=UTF-8''…` |
-| **Upload (import)** | Клиент может передать `Content-Encoding: gzip` **или** загрузить файл с суффиксом `.gz`. Сервер распознаёт magic bytes `1F 8B`. |
+| **Download** | Сжатие задаётся при `POST …/exports` (`compress=gzip\|none`) и отражено в имени файла (`.gz`). Query на download **нет**. Заголовки: `Content-Encoding: gzip` для не-zip `.gz`, `Content-Type` по формату, `Content-Disposition: attachment; filename*=UTF-8''…`, опционально `X-Content-SHA256`. |
+| **Upload (import)** | Тело create — JSON. Данные: `inline_csv` (UTF-8 строка) или `upload_relative_path` к уже загруженному объекту. Gzip-файл как multipart **не** принимается этой ручкой. |
 | **Accept-Encoding** | Браузер может дополнительно сжать HTTP-транспорт; логически файл уже `.csv.gz`. |
 
 Пример download:
@@ -234,8 +237,8 @@ Content-Length: 18432003
 
 ### SSE (основной способ)
 
-Модуль доступен только платным тарифам (`transfer_enabled`). Клиент **не
-поллит** — открывает EventSource на `events_url` из 202 ответа.
+Модуль доступен только при `subscription_plans.transfer_daily_bytes > 0`.
+Клиент **не поллит** — открывает EventSource на `events_url` из 202 ответа.
 
 | Параметр | Значение |
 |----------|----------|
@@ -523,36 +526,28 @@ cutoff = now() - stats_click_retention_days   // план владельца sco
 </details>
 
 Dedicated ручка: [`POST …/imports/preflight`](module_transfer/post-transfer-imports-preflight.md)
-— клиент вызывает **до** upload; `POST …/imports` повторяет те же проверки.
+— клиент передаёт **оценки** (без upload файла). `POST …/imports` **не**
+повторяет gates shorts/subdomain/retention: только paywall transfer, conflict
+и суточная квота байт.
 
-### Доступ к модулю (`transfer_enabled`)
+### Доступ к модулю (`transfer_daily_bytes`)
 
-Колонка `subscription_plans.transfer_enabled` (см.
-[subscription_politics](../../business/subscription_politics.md)):
+Gate в коде: `subscription_plans.transfer_daily_bytes > 0` (см.
+[subscription_politics](../../business/subscription_politics.md)). Колонка
+`transfer_enabled` в планах может существовать как справочник, но HTTP API
+ориентируется на дневной лимит байт.
 
-| План | `transfer_enabled` |
-|------|--------------------|
-| FREE, FREE_PLUS | `false` |
-| PERSONAL, PRO, BUSINESS, BUSINESS_PLUS | `true` |
+| План | Типично `transfer_daily_bytes` |
+|------|--------------------------------|
+| FREE, FREE_PLUS | `0` → 402 |
+| PERSONAL и выше | `> 0` |
 
-Любая **мутирующая** или **data-heavy** ручка transfer (export/import job,
-preflight с файлом) проверяет флаг **до** постановки в очередь.
+Любая **мутирующая** data-heavy ручка (export/import create, preflight)
+проверяет gate **до** постановки job / ответа.
 
 `GET /transfer/formats` — публичный каталог схем, без данных пользователя.
 
-При `transfer_enabled=false` → **402** `transfer_not_payed_error`:
-
-```json
-{
-  "kind": "transfer_not_payed_error",
-  "reason": "Import/export доступен на тарифах PERSONAL и выше",
-  "details": {
-    "subscription": "FREE",
-    "transfer_enabled": false,
-    "upgrade_plan": "PERSONAL"
-  }
-}
-```
+При `transfer_daily_bytes = 0` → **402** `transfer_not_payed_error`.
 
 ---
 
@@ -591,48 +586,40 @@ import stats.
 
 ## Безопасность и скомпрометированный API
 
-Preflight — **UX-оптимизация** (не грузить гигабайты заведомо отклонённого
-файла), **не** security boundary. Все проверки дублируются на
-`POST …/imports` и `POST …/exports` **до** создания job.
+Preflight — **UX-оптимизация** (проверить лимиты до тяжёлого upload), **не**
+security boundary. На `POST …/imports` дублируются только paywall transfer,
+conflict и byte-quota; лимиты shorts/subdomain/retention клиент обязан
+проверить через preflight (или принять построчные ошибки runner).
 
 ### Если токен украден — что может атакующий?
 
 | Действие | Защита |
 |----------|--------|
-| Пропустить preflight, сразу `POST …/imports` | Те же gate: `transfer_enabled`, лимиты shorts/subdomain/retention **до** job |
-| FREE-аккаунт грузит сервер | **402** `transfer_not_payed_error` — worker не стартует |
-| Платный аккаунт, flood большими файлами | Rate limit `transfer:*` (per user + per IP), **413** payload cap **1 GB** gzip |
+| Пропустить preflight, сразу `POST …/imports` | Paywall `transfer_daily_bytes`, conflict, byte-quota; лимиты shorts/subdomain — на клиенте / runner |
+| FREE-аккаунт (`transfer_daily_bytes=0`) | **402** `transfer_not_payed_error` — runner не стартует |
+| Платный аккаунт, большие inline | Cap `transfer.max_import_upload_bytes` → 400; суточная квота байт → 429 |
 | Много параллельных job | Max **1** active export + **1** active import на scope |
-| Долгий CPU/IO на export | Job quota: `transfer.max_jobs_per_user_per_day` (default 10) |
-| Preflight spam (лёгкие запросы) | Отдельный лимит `transfer:preflight_rps` (жёстче import); scan capped `transfer.preflight_max_scan_bytes` (default 32 MB заголовка файла для оценки) |
-| Polling status | Обычный API RPS; без файлов |
-| `GET /transfer/formats` | Публично, статический JSON, CDN-cache |
+| Status / SSE | Обычный API auth; без файлов |
+| `GET /transfer/formats` | Публично, статический JSON |
 
 ```mermaid
 flowchart LR
-    R[Request + Bearer] --> A{transfer_enabled?}
-    A -->|FREE| E402T[402 transfer_not_payed]
-    A -->|paid| B{Rate limit OK?}
-    B -->|нет| E429[429]
-    B -->|да| C{Preflight gates}
-    C -->|fail| E402E[402/400]
-    C -->|ok| J[Job queue]
-    J --> W[transfer-worker]
+    R[Request + Bearer/API key] --> A{transfer_daily_bytes > 0?}
+    A -->|no| E402T[402 transfer_not_payed]
+    A -->|yes| B{Daily byte quota?}
+    B -->|exceeded| E429[429]
+    B -->|ok| C{Active job?}
+    C -->|conflict| E409[409]
+    C -->|ok| J[Job + tokio::spawn]
 ```
 
-### Если клиент **не может** вызвать preflight
+### Если клиент **не** вызвал preflight
 
-Сценарии: старый клиент, обрезанный SDK, ручной curl только на `POST …/imports`.
+`POST …/imports` **не** дублирует shorts/subdomain/retention gates. Клиент
+узнает о переполнении лимитов только через построчные ошибки runner (или
+заранее через preflight). Paywall transfer и conflict по-прежнему до job.
 
-Поведение **идентично**:
-
-1. Inline preflight на `POST …/imports` / `POST …/exports` (шаг 0).
-2. Job не создаётся при любом fail gate.
-3. Единственный минус UX — пользователь/upload-proxy узнаёт об ошибке **после**
-   начала upload, а не до него. Для защиты сервера это не хуже: тело всё равно
-   stream-валидируется; при **413** / fail gate connection обрывается без job.
-
-Рекомендация фронту: **всегда** preflight для файлов > 1 MB; для малых — optional.
+Рекомендация фронту: **всегда** preflight перед крупным import.
 
 ### Реакция на компрометацию
 
@@ -646,33 +633,33 @@ flowchart LR
 
 | Ограничение | Значение |
 |-------------|----------|
-| Max export size (uncompressed) | по подписке; hard cap **5 GB** |
-| Max import file (upload) | **1 GB** gzip |
-| Max rows per import batch | `transfer.max_import_rows` (default 100 000) |
-| Job TTL (download) | **24 ч** |
+| Max import inline (`inline_csv`) | `transfer.max_import_upload_bytes` |
+| Max rows per import batch | `transfer.max_import_rows` |
+| Job TTL (download) | `transfer.job_ttl` (типично 24 ч) |
+| Daily transfer volume | `subscription_plans.transfer_daily_bytes` |
 | Raw clicks export | только в пределах `stats_click_retention_days` |
 | Пароли | export: флаг only; import: Argon2 server-side |
-| Авторизация | Bearer; scope ownership assert |
-| Rate limit | `transfer:*` per user + IP; preflight отдельный bucket |
-| `transfer_enabled` | FREE = false; платные тарифы = true → 402 до job |
-| Job quota | `transfer.max_jobs_per_user_per_day` (default 10) |
-| Preflight scan cap | первые **32 MB** файла для оценки строк (без полного parse) |
+| Авторизация | Bearer или X-Api-Key; scope ownership / key scope |
+| Gate модуля | `transfer_daily_bytes > 0` → иначе 402 |
+| Concurrent jobs | 1 active export + 1 active import на scope |
 
 Ошибки import строк не отменяют весь job при `on_row_error=continue` (default):
-ответ содержит `errors.ndjson.gz` sidecar с `{ row, kind, reason }`.
+sidecar `errors.ndjson.gz` с `{ row, kind, reason }` — `GET …/imports/{job_id}/errors`.
 
 ---
 
 ## Сводная таблица эндпоинтов
 
-| Метод    | Путь                                      | Auth | Описание                          |
-|----------|-------------------------------------------|------|-----------------------------------|
-| `GET`    | `/transfer/formats`                       | —    | Схемы и адаптеры                  |
-| `POST`   | `/transfer/{scope}/exports`               | 🔒   | Создать export job                |
-| `GET`    | `/transfer/{scope}/exports/{job_id}`      | 🔒   | Статус export (polling)           |
-| `GET`    | `/transfer/{scope}/exports/{job_id}/download` | 🔒 | Скачать файл                  |
-| `POST`   | `/transfer/{scope}/imports`               | 🔒   | Загрузить файл / создать import   |
-| `POST`   | `/transfer/{scope}/imports/preflight`     | 🔒   | Preflight лимитов до upload       |
-| `GET`    | `/transfer/{scope}/imports/{job_id}`          | 🔒   | Статус import (polling)           |
+| Метод    | Путь                                          | Auth | Описание                          |
+|----------|-----------------------------------------------|------|-----------------------------------|
+| `GET`    | `/transfer/formats`                           | —    | Схемы и адаптеры                  |
+| `POST`   | `/transfer/{scope}/exports`                   | 🔒   | Создать export job                |
+| `GET`    | `/transfer/{scope}/exports/{job_id}`          | 🔒   | Snapshot статуса export           |
+| `GET`    | `/transfer/{scope}/exports/{job_id}/events`   | 🔒   | SSE прогресс export               |
+| `GET`    | `/transfer/{scope}/exports/{job_id}/download` | 🔒   | Скачать файл                      |
+| `POST`   | `/transfer/{scope}/imports`                   | 🔒   | Создать import job (JSON)         |
+| `POST`   | `/transfer/{scope}/imports/preflight`         | 🔒   | Preflight лимитов (оценки JSON)   |
+| `GET`    | `/transfer/{scope}/imports/{job_id}`          | 🔒   | Snapshot статуса import           |
+| `GET`    | `/transfer/{scope}/imports/{job_id}/events`   | 🔒   | SSE прогресс import               |
 | `GET`    | `/transfer/{scope}/imports/{job_id}/errors`   | 🔒   | Отчёт ошибок import (gzip NDJSON) |
-| `DELETE` | `/transfer/{scope}/jobs/{job_id}`           | 🔒   | Отменить job                      |
+| `DELETE` | `/transfer/{scope}/jobs/{job_id}`             | 🔒   | Отменить job                      |

@@ -4,17 +4,19 @@
 
 |                | Описание                                                                                  |
 |----------------|-------------------------------------------------------------------------------------------|
-| **Назначение** | Справочник поддерживаемых форматов export/import, адаптеров и native-схем колонок         |
-| **Логика**     | 1. Возвращает статический каталог (версионируется `catalog_version`).                     |
-|                | 2. Описывает MIME, gzip-поведение, адаптеры Linkly/Bitly и native column sets.          |
-|                | 3. Query `schema=` — детальная схема одного набора (`native_shorts`, `native_clicks`).    |
+| **Назначение** | Справочник форматов export/import, адаптеров и native-колонок                             |
+| **Auth**       | Нет                                                                                       |
+| **Логика**     | 1. Статический каталог (`catalog_version`).                                               |
+|                | 2. Включает `export_formats`, `export_bundles`, `import_adapters`,                        |
+|                | &nbsp;&nbsp;&nbsp;`native_shorts_columns`, `native_clicks_columns`, `import_flags`.       |
+|                | 3. `polling.sse_supported=true`, `events_path_suffix=/events`; интервалы polling = null.  |
+|                | 4. Query-параметров нет.                                                                  |
 
 ---
 
-| Kind         | Код | Описание              |
-|--------------|-----|-----------------------|
-|              | 200 | Каталог форматов      |
-| server_error | 500 | Внутренняя ошибка     |
+| Kind | Код | Описание         |
+|------|-----|------------------|
+|      | 200 | Каталог форматов |
 
 ---
 
@@ -26,74 +28,20 @@
   "catalog_version": 1,
   "export_formats": [
     { "id": "csv", "mime": "text/csv; charset=utf-8", "supports_gzip": true },
-    { "id": "tsv", "mime": "text/tab-separated-values", "supports_gzip": true },
-    { "id": "ndjson", "mime": "application/x-ndjson", "supports_gzip": true },
-    { "id": "json", "mime": "application/json", "supports_gzip": true, "max_uncompressed_bytes": 10485760 }
+    { "id": "ndjson", "mime": "application/x-ndjson", "supports_gzip": true }
   ],
   "export_bundles": ["shorts", "clicks", "full"],
   "import_adapters": [
-    {
-      "id": "native",
-      "description": "CSV/TSV/NDJSON с column_mapping",
-      "detect": ["schema_version", "short_name", "targets_json"]
-    },
-    {
-      "id": "linkly_links",
-      "description": "Linkly Links export (links.csv)",
-      "detect": ["id", "name", "url", "slug", "full_url", "clicks_total"],
-      "sample": "links.csv",
-      "default_stats_mode": "agg_only"
-    },
-    {
-      "id": "linkly_clicks_pivot",
-      "description": "Linkly pivot clicks (clicks_pivot.csv)",
-      "detect": ["pivot_blocks"],
-      "sample": "clicks_pivot.csv",
-      "default_stats_mode": "agg_only"
-    },
-    {
-      "id": "bitly_links",
-      "description": "Bitly Links page CSV export",
-      "detect": ["Link", "Destination URL", "Engagements"],
-      "default_stats_mode": "agg_only"
-    }
-  ],
-  "preflight_errors": [
-    "transfer_not_payed_error",
-    "short_name_not_payed_error",
-    "subdomain_not_payed_error",
-    "stats_retention_error"
-  ],
-  "import_flags": [
-    { "name": "ignore_retention_limit", "default": false, "description": "Raw вне retention → agg only" },
-    { "name": "import_stats_mode", "values": ["auto", "agg_only", "raw_and_agg"] }
+    { "id": "native", "detect": ["short_name", "long_url"] },
+    { "id": "linkly_links", "detect": ["slug", "url", "name", "domain"] },
+    { "id": "bitly_links", "detect": ["long_url", "title", "Destination URL"] }
   ],
   "polling": {
-    "recommended_interval_sec": 2,
-    "max_interval_sec": 30,
-    "sse_supported": true
+    "recommended_interval_sec": null,
+    "max_interval_sec": null,
+    "sse_supported": true,
+    "events_path_suffix": "/events"
   }
-}
-```
-
-</details>
-
-<details>
-<summary><b>Query: schema=native_shorts</b></summary>
-
-Фрагмент ответа — полный список колонок export `shorts`:
-
-```json
-{
-  "schema": "native_shorts",
-  "schema_version": 1,
-  "columns": [
-    { "name": "short_id", "type": "int64", "export": true, "import": false },
-    { "name": "short_name", "type": "string", "export": true, "import": true, "required": true },
-    { "name": "targets_json", "type": "json", "export": true, "import": true, "required": true },
-    { "name": "agg_total_clicks", "type": "int64", "export": true, "import": "merge_agg" },
-    { "name": "agg_clicks_by_day_json", "type": "json", "export": true, "import": "merge_agg" }
-  ]
 }
 ```
 

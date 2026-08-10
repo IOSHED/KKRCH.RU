@@ -4,22 +4,24 @@
 
 |                | Описание                                                                                  |
 |----------------|-------------------------------------------------------------------------------------------|
-| **Назначение** | Polling статуса import job, прогресса и итоговой сводки                                   |
-| **Логика**     | 1. Проверяет Bearer и ownership job / scope.                                                |
-|                | 2. Возвращает `progress` (строки), счётчики created/skipped/failed.                         |
-|                | 3. При `completed` — ссылки на `errors_download_url` если были ошибки строк.                |
-|                | 4. При `dry_run=true` — только отчёт валидации без side effects.                            |
+| **Назначение** | Одноразовый snapshot статуса import job (не polling-loop)                                 |
+| **Auth**       | Bearer или X-Api-Key (`transfer_import`)                                                  |
+| **Логика**     | 1. Job должен быть `kind=import` в данном scope.                                          |
+|                | 2. Возвращает `TransferJobResponse` (progress, result / error).                           |
+|                | 3. При `completed` — `result.errors_download_url` / `sample_errors` при ошибках строк.    |
+| **Прогресс**   | Основной канал — **SSE** [`…/events`](get-transfer-imports-job_id-events.md).             |
 | **Параметры**  | `scope_id:int`, `job_id:uuid` — path                                                      |
 
 ---
 
-| Kind                  | Код | Описание                         |
-|-----------------------|-----|----------------------------------|
-|                       | 200 | Статус import job                |
-| auth_error            | 401 | Не авторизован                   |
-| scope_not_found_error | 404 | Scope недоступен                 |
-| job_not_found_error   | 404 | Job не найден                    |
-| server_error          | 500 | Внутренняя ошибка                |
+| Kind                         | Код | Описание                         |
+|------------------------------|-----|----------------------------------|
+|                              | 200 | Статус import job                |
+| auth_error                   | 401 | Не авторизован                   |
+| permission_denied_error      | 403 | Недостаточно прав API key        |
+| api_key_scope_mismatch_error | 403 | API key / scope mismatch         |
+| job_not_found_error          | 404 | Job не найден / не import         |
+| server_error                 | 500 | Внутренняя ошибка                |
 
 ---
 

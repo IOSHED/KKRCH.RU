@@ -4,46 +4,48 @@
 
 |                | Описание                                                                                  |
 |----------------|-------------------------------------------------------------------------------------------|
-| **Назначение** | Синхронная проверка import **до** создания job и тяжёлой загрузки файла                   |
-| **Логика**     | 1. Bearer + доступ к scope.                                                               |
-|                | 2. Проверяет `subscription_plans.transfer_enabled` (FREE → 402).                          |
-|                | 3. Stream-scan файла (без записи в БД): подсчёт shorts, subdomain, raw dates.               |
-|                | 4. Сверка с лимитами `max_shorts`, subdomain, retention.                                  |
-|                | 5. При успехе → `200` + сводка; при нарушении → **402/400** + `details`, job не создаётся. |
+| **Назначение** | Синхронная проверка лимитов import **до** создания job                                    |
+| **Auth**       | Bearer или X-Api-Key (`transfer_import`)                                                  |
+| **Content-Type** | `application/json`                                                                      |
+| **Логика**     | 1. Gate тарифа: `transfer_daily_bytes > 0` → иначе 402 `transfer_not_payed_error`.         |
+|                | 2. Клиент передаёт **оценки** (сервер файл не сканирует): `would_create_shorts`,          |
+|                | &nbsp;&nbsp;&nbsp;`unique_subdomains[]`, `raw_events_outside_retention`.                    |
+|                | 3. Сверка с `max_shorts`, наличием subdomain в scope, retention.                          |
+|                | 4. Успех → 200 + сводка; нарушение → 402/400, job не создаётся.                           |
 | **Параметры**  | `scope_id:int` — path                                                                     |
 
-> **Preflight optional:** клиент может не вызывать эту ручку — те же проверки
-> выполняются inline на [`POST …/imports`](post-transfer-imports.md). Preflight
-> экономит upload; безопасность не ослабляется.
+> Preflight **не** дублируется автоматически на `POST …/imports`. Import create
+> проверяет только paywall transfer, conflict и byte-quota. Лимиты shorts /
+> subdomain / retention — ответственность клиента (вызвать preflight) или
+> runner (построчные ошибки).
 
 ---
 
-| Kind                        | Код | Описание                                              |
-|-----------------------------|-----|-------------------------------------------------------|
-|                             | 200 | Preflight пройден, import разрешён                    |
-| stats_retention_error       | 400 | Raw-клики вне retention (`ignore_retention_limit=false`) |
-| validation_error            | 400 | metadata / формат файла                               |
-| auth_error                  | 401 | Не авторизован                                        |
-| scope_not_found_error       | 404 | Scope недоступен                                      |
-| short_name_not_payed_error  | 402 | Превышен `max_shorts`                                 |
-| subdomain_not_payed_error   | 402 | Subdomain из файла не существуют / лимит subdomain    |
-| transfer_not_payed_error    | 402 | `transfer_enabled=false` (тариф FREE)                 |
-| payload_too_large_error     | 413 | Файл > лимита upload                                  |
-| server_error                | 500 | Внутренняя ошибка                                     |
+| Kind                         | Код | Описание                                              |
+|------------------------------|-----|-------------------------------------------------------|
+|                              | 200 | Preflight пройден                                     |
+| stats_retention_error        | 400 | Raw вне retention при `ignore_retention_limit=false`  |
+| validation_error             | 400 | Некорректное тело                                     |
+| auth_error                   | 401 | Не авторизован                                        |
+| permission_denied_error      | 403 | Недостаточно прав API key                             |
+| api_key_scope_mismatch_error | 403 | API key привязан к другому scope                      |
+| scope_not_found_error        | 404 | Scope недоступен                                      |
+| short_name_not_payed_error   | 402 | `current + would_create > max_shorts`                 |
+| subdomain_not_payed_error    | 402 | Subdomain из списка отсутствуют в scope               |
+| transfer_not_payed_error     | 402 | `transfer_daily_bytes = 0`                            |
+| server_error                 | 500 | Внутренняя ошибка                                     |
 
 ---
 
 <details open>
 <summary><b>Пример запроса</b></summary>
 
-Тело — идентично `POST …/imports` (multipart: `metadata` + `file`).
-
 ```json
 {
-  "adapter": "linkly_links",
-  "format": "csv",
-  "ignore_retention_limit": false,
-  "dry_run": false
+  "would_create_shorts": 120,
+  "unique_subdomains": ["promo", "go"],
+  "raw_events_outside_retention": 0,
+  "ignore_retention_limit": false
 }
 ```
 
@@ -55,7 +57,7 @@
 ```json
 {
   "ok": true,
-  "subscription": "PERSONAL",
+  "subscription": "Personal",
   "limits": {
     "max_shorts": 300,
     "max_subdomains": 0,
@@ -65,107 +67,25 @@
     "would_create_shorts": 120,
     "current_shorts": 45,
     "remaining_short_slots": 255,
-    "unique_subdomains": [],
+    "unique_subdomains": ["promo", "go"],
     "missing_subdomains": [],
-    "raw_events_total": 158000,
     "raw_events_outside_retention": 0
   }
 }
 ```
 
-При нарушении лимитов вместо `200` возвращается **402/400** (см. примеры ниже).
-
-</details>
-
-<details open>
-<summary><b>402 — transfer_not_payed_error (FREE)</b></summary>
-
-```json
-{
-  "kind": "transfer_not_payed_error",
-  "reason": "Import/export доступен на тарифах PERSONAL и выше",
-  "details": {
-    "subscription": "FREE",
-    "transfer_enabled": false,
-    "upgrade_plan": "PERSONAL"
-  }
-}
-```
-
-Проверка выполняется **до** scan файла — минимальная нагрузка даже при
-скомпрометированном токене FREE-пользователя.
-
-</details>
-
-<details open>
-<summary><b>402 — short_name_not_payed_error</b></summary>
-
-```json
-{
-  "kind": "short_name_not_payed_error",
-  "reason": "Import добавит 8420 ссылок при лимите FREE = 10",
-  "details": {
-    "subscription": "FREE",
-    "current_count": 8,
-    "plan_limit": 10,
-    "import_would_add": 8420,
-    "over_limit_by": 8418,
-    "remaining_slots": 2
-  }
-}
-```
-
-</details>
-
-<details open>
-<summary><b>402 — subdomain_not_payed_error</b></summary>
-
-```json
-{
-  "kind": "subdomain_not_payed_error",
-  "reason": "В файле указаны subdomain, которых нет у аккаунта",
-  "details": {
-    "missing_subdomains": ["brand", "promo-campaign"],
-    "referenced_in_rows": 1240,
-    "plan_max_subdomains": 0,
-    "owned_subdomains": []
-  }
-}
-```
-
-Фронт показывает CTA «Создать subdomain» (как при `subdomain_not_payed_error`
-в create short).
-
-</details>
-
-<details open>
-<summary><b>400 — stats_retention_error</b></summary>
-
-```json
-{
-  "kind": "stats_retention_error",
-  "reason": "842000 raw-кликов старше 30 дней (лимит retention FREE)",
-  "details": {
-    "retention_days": 30,
-    "cutoff_at": "2026-06-21T00:00:00Z",
-    "oldest_event_at": "2024-03-01T12:00:00Z",
-    "events_outside_retention": 842000,
-    "events_within_retention": 158000,
-    "ignore_available": true
-  }
-}
-```
-
-Повторите import с `"ignore_retention_limit": true` — raw вне окна будет
-**пропущен**, agg обновится (см. [Import статистики](../module_transfer.md#import-статистики-raw--agg)).
+`subscription` — Debug-формат enum (`Personal`, `BusinessPlus`, …).
 
 </details>
 
 <details>
-<summary><b>Поле details</b></summary>
+<summary><b>Поля тела</b></summary>
 
-Transfer-ручки расширяют стандартный [`ErrorBody`](../module_auth.md) optional
-полем `details: object` для машинной обработки на фронте. Остальные модули
-API по-прежнему `{ kind, reason }` only.
+| Поле | Тип | Default | Описание |
+|------|-----|---------|----------|
+| `would_create_shorts` | i64 | `0` | Сколько новых shorts создаст import |
+| `unique_subdomains` | string[] | `[]` | Subdomain, которые встречаются в файле |
+| `raw_events_outside_retention` | i64 | `0` | Число raw-событий старше retention |
+| `ignore_retention_limit` | bool | `false` | `true` — не падать на outside retention |
 
 </details>

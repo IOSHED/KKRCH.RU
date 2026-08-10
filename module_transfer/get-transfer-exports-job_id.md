@@ -13,13 +13,15 @@
 
 ---
 
-| Kind                  | Код | Описание                         |
-|-----------------------|-----|----------------------------------|
-|                       | 200 | Статус job                       |
-| auth_error            | 401 | Не авторизован                   |
-| scope_not_found_error | 404 | Scope недоступен                 |
-| job_not_found_error   | 404 | Job не найден                    |
-| server_error          | 500 | Внутренняя ошибка                |
+| Kind                         | Код | Описание                         |
+|------------------------------|-----|----------------------------------|
+|                              | 200 | Статус job                       |
+| auth_error                   | 401 | Не авторизован                   |
+| permission_denied_error      | 403 | Недостаточно прав API key        |
+| api_key_scope_mismatch_error | 403 | API key / scope mismatch         |
+| scope_not_found_error        | 404 | Scope недоступен                 |
+| job_not_found_error          | 404 | Job не найден / не export         |
+| server_error                 | 500 | Внутренняя ошибка                |
 
 ---
 
