@@ -22,64 +22,62 @@ raw-события кликов (`link_click_events`) в пределах retent
 
 ## Оглавление
 
-| Иконка | Раздел                                      | Ссылка                                                         |
-|--------|---------------------------------------------|----------------------------------------------------------------|
-| 🎯     | Use cases                                   | [ссылка](#use-cases)                                           |
-| 📦     | Что экспортируем / импортируем              | [ссылка](#что-экспортируем--импортируем)                       |
-| 🗜️    | Форматы файлов и сжатие                     | [ссылка](#форматы-файлов-и-сжатие)                             |
-| ⏳     | Jobs, SSE                                   | [ссылка](#jobs-sse)                                             |
-| 🔒     | Preflight и лимиты подписки                 | [ссылка](#preflight-и-лимиты-подписки)                          |
-| 🛡️    | Безопасность и скомпрометированный API       | [ссылка](#безопасность-и-скомпрометированный-api)               |
-| 📈     | Import статистики: raw + agg                | [ссылка](#import-статистики-raw--agg)                           |
-| 🔌     | Адаптеры конкурентов                        | [ссылка](#адаптеры-конкурентов)                                |
-| 📐     | Native CSV — схема колонок                  | [ссылка](#native-csv--схема-колонок)                           |
-| 📊     | Raw clicks CSV / NDJSON                     | [ссылка](#raw-clicks-csv--ndjson)                              |
-| ⚙️     | Лимиты, retention, безопасность             | [ссылка](#лимиты-retention-безопасность)                       |
-| 📋     | Сводная таблица эндпоинтов                  | [ссылка](#сводная-таблица-эндпоинтов)                          |
-| ↳      | GET /transfer/formats                       | [ссылка](module_transfer/get-transfer-formats.md)              |
-| ↳      | POST /transfer/{scope}/exports                | [ссылка](module_transfer/post-transfer-exports.md)             |
-| ↳      | GET /transfer/{scope}/exports/{job_id}        | [ссылка](module_transfer/get-transfer-exports-job_id.md)     |
-| ↳      | GET /transfer/{scope}/exports/{job_id}/events | [ссылка](module_transfer/get-transfer-exports-job_id-events.md) |
+| Иконка | Раздел                                          | Ссылка                                                            |
+|--------|-------------------------------------------------|-------------------------------------------------------------------|
+| 🎯     | Use cases                                       | [ссылка](#use-cases)                                              |
+| 📦     | Что экспортируем / импортируем                  | [ссылка](#что-экспортируем--импортируем)                          |
+| 🗜️    | Форматы файлов и сжатие                         | [ссылка](#форматы-файлов-и-сжатие)                                |
+| ⏳      | Jobs, SSE                                       | [ссылка](#jobs-sse)                                               |
+| 🔒     | Preflight и лимиты подписки                     | [ссылка](#preflight-и-лимиты-подписки)                            |
+| 🛡️    | Безопасность и скомпрометированный API          | [ссылка](#безопасность-и-скомпрометированный-api)                 |
+| 📈     | Import статистики: raw + agg                    | [ссылка](#import-статистики-raw--agg)                             |
+| 🔌     | Адаптеры конкурентов                            | [ссылка](#адаптеры-конкурентов)                                   |
+| 📐     | Native CSV — схема колонок                      | [ссылка](#native-csv--схема-колонок)                              |
+| 📊     | Raw clicks CSV / NDJSON                         | [ссылка](#raw-clicks-csv--ndjson)                                 |
+| ⚙️     | Лимиты, retention, безопасность                 | [ссылка](#лимиты-retention-безопасность)                          |
+| 📋     | Сводная таблица эндпоинтов                      | [ссылка](#сводная-таблица-эндпоинтов)                             |
+| ↳      | POST /transfer/{scope}/exports                  | [ссылка](module_transfer/post-transfer-exports.md)                |
+| ↳      | GET /transfer/{scope}/exports/{job_id}          | [ссылка](module_transfer/get-transfer-exports-job_id.md)          |
+| ↳      | GET /transfer/{scope}/exports/{job_id}/events   | [ссылка](module_transfer/get-transfer-exports-job_id-events.md)   |
 | ↳      | GET /transfer/{scope}/exports/{job_id}/download | [ссылка](module_transfer/get-transfer-exports-job_id-download.md) |
-| ↳      | POST /transfer/{scope}/imports                | [ссылка](module_transfer/post-transfer-imports.md)           |
-| ↳      | POST /transfer/{scope}/imports/preflight      | [ссылка](module_transfer/post-transfer-imports-preflight.md) |
-| ↳      | GET /transfer/{scope}/imports/{job_id}          | [ссылка](module_transfer/get-transfer-imports-job_id.md)     |
-| ↳      | GET /transfer/{scope}/imports/{job_id}/events   | [ссылка](module_transfer/get-transfer-imports-job_id-events.md) |
-| ↳      | GET /transfer/{scope}/imports/{job_id}/errors   | [ссылка](module_transfer/get-transfer-imports-job_id-errors.md) |
-| ↳      | DELETE /transfer/{scope}/jobs/{job_id}        | [ссылка](module_transfer/delete-transfer-jobs-job_id.md)     |
+| ↳      | POST /transfer/{scope}/imports                  | [ссылка](module_transfer/post-transfer-imports.md)                |
+| ↳      | POST /transfer/{scope}/imports/preflight        | [ссылка](module_transfer/post-transfer-imports-preflight.md)      |
+| ↳      | GET /transfer/{scope}/imports/{job_id}          | [ссылка](module_transfer/get-transfer-imports-job_id.md)          |
+| ↳      | GET /transfer/{scope}/imports/{job_id}/events   | [ссылка](module_transfer/get-transfer-imports-job_id-events.md)   |
+| ↳      | GET /transfer/{scope}/imports/{job_id}/errors   | [ссылка](module_transfer/get-transfer-imports-job_id-errors.md)   |
+| ↳      | DELETE /transfer/{scope}/jobs/{job_id}          | [ссылка](module_transfer/delete-transfer-jobs-job_id.md)          |
 
 ---
 
 ## Use cases
 
-| Сценарий | Export | Import |
-|----------|--------|--------|
-| Резервная копия scope перед миграцией | `full` + gzip | — |
-| Выгрузка в Excel / BI | `shorts`, format=`csv` | — |
-| Выгрузка сырых кликов для DWH | `clicks`, format=`ndjson`, gzip | — |
-| Массовое создание ссылок из таблицы | — | `native` + column mapping |
-| Переезд с **Linkly** | — | `linkly_links` (+ опционально `linkly_clicks_pivot`) |
-| Переезд с **Bitly** | — | `bitly_links` |
-| Восстановление после сбоя | `full` | `native` (тот же формат) |
+| Сценарий                              | Export                          | Import                                               |
+|---------------------------------------|---------------------------------|------------------------------------------------------|
+| Резервная копия scope перед миграцией | `full` + gzip                   | —                                                    |
+| Выгрузка в Excel / BI                 | `shorts`, format=`csv`          | —                                                    |
+| Выгрузка сырых кликов для DWH         | `clicks`, format=`ndjson`, gzip | —                                                    |
+| Массовое создание ссылок из таблицы   | —                               | `native` + column mapping                            |
+| Переезд с **Linkly**                  | —                               | `linkly_links` (+ опционально `linkly_clicks_pivot`) |
+| Переезд с **Bitly**                   | —                               | `bitly_links`                                        |
+| Восстановление после сбоя             | `full`                          | `native` (тот же формат)                             |
 
 ```mermaid
 sequenceDiagram
     participant C as Клиент
     participant API as HTTP API
     participant S as MinIO / local
-
-    C->>API: POST /transfer/{scope}/exports
-    API-->>C: 202 { job_id, events_url, download_url }
-    API->>API: tokio::spawn(runner)
-    C->>API: GET .../exports/{job_id}/events (SSE)
+    C ->> API: POST /transfer/{scope}/exports
+    API -->> C: 202 { job_id, events_url, download_url }
+    API ->> API: tokio::spawn(runner)
+    C ->> API: GET .../exports/{job_id}/events (SSE)
     loop progress
-        API-->>C: event: progress
+        API -->> C: event: progress
     end
-    API->>S: put transfer/exports/*.csv.gz
-    API-->>C: event: completed
-    C->>API: GET .../exports/{job_id}/download
-    API->>S: get object
-    API-->>C: 200 Content-Encoding: gzip
+    API ->> S: put transfer/exports/*.csv.gz
+    API -->> C: event: completed
+    C ->> API: GET .../exports/{job_id}/download
+    API ->> S: get object
+    API -->> C: 200 Content-Encoding: gzip
 ```
 
 ---
@@ -93,45 +91,45 @@ denormalized `target_N_*` при `layout=wide`).
 
 **Данные ссылки** (из `shorts`, `short_targets`, `folders`, `subdomains`):
 
-| Группа | Поля |
-|--------|------|
-| Идентификация | `short_id`, `scope_id`, `short_name`, `subdomain`, `public_url` |
-| Мета | `description`, `folder_id`, `folder_path`, `tags[]` |
-| Поведение | `redirect_type`, `is_captcha`, `is_active`, `inactive_reason`, `is_archived` |
-| Лимиты | `max_clicks`, `clicks_count`, `budget`, `spent`, `currency` |
-| Расписание | `beginning_time`, `expiration_time` |
-| Targets | `targets_json` (массив: url, weight, max_clicks, cpc, budget, utm, position) |
-| Аудит | `created_at`, `updated_at` |
-| Пароль | **не экспортируется** — только флаг `has_password: bool` |
+| Группа        | Поля                                                                         |
+|---------------|------------------------------------------------------------------------------|
+| Идентификация | `short_id`, `scope_id`, `short_name`, `subdomain`, `public_url`              |
+| Мета          | `description`, `folder_id`, `folder_path`, `tags[]`                          |
+| Поведение     | `redirect_type`, `is_captcha`, `is_active`, `inactive_reason`, `is_archived` |
+| Лимиты        | `max_clicks`, `clicks_count`, `budget`, `spent`, `currency`                  |
+| Расписание    | `beginning_time`, `expiration_time`                                          |
+| Targets       | `targets_json` (массив: url, weight, max_clicks, cpc, budget, utm, position) |
+| Аудит         | `created_at`, `updated_at`                                                   |
+| Пароль        | **не экспортируется** — только флаг `has_password: bool`                     |
 
 **Агрегированная статистика** (JOIN `link_short_agg`, lifetime):
 
-| Поле export | Источник agg |
-|-------------|--------------|
-| `agg_total_clicks` | `total_clicks` |
-| `agg_bot_clicks_total` | `bot_clicks_total` |
-| `agg_failed_captcha_total` | `failed_captcha_total` |
-| `agg_failed_password_total` | `failed_password_total` |
-| `agg_avg_ttfb_ms` | `sum_ttfb_ms / ttfb_samples` |
-| `agg_spend_total` | `spend_total` |
-| `agg_clicks_by_day_json` | `clicks_by_day` (+ `stats_by_day` day-map при наличии) |
-| `agg_clicks_by_os_json` | `clicks_by_os` |
-| `agg_clicks_by_device_json` | `clicks_by_device` |
-| `agg_clicks_by_browser_json` | `clicks_by_browser` |
-| `agg_clicks_by_country_json` | `clicks_by_country` |
-| `agg_clicks_by_region_json` | `clicks_by_region` (`RU-NIZ`, …; см. geo migration) |
-| `agg_clicks_by_status_code_json` | `clicks_by_status_code` |
-| `agg_clicks_by_target_json` | `clicks_by_target` |
-| `agg_clicks_by_utm_source_json` | `clicks_by_utm_source` |
-| `agg_clicks_by_utm_medium_json` | `clicks_by_utm_medium` |
-| `agg_clicks_by_utm_campaign_json` | `clicks_by_utm_campaign` |
-| `agg_clicks_by_utm_content_json` | `clicks_by_utm_content` |
-| `agg_clicks_by_utm_term_json` | `clicks_by_utm_term` |
-| `agg_clicks_by_ad_platform_json` | `clicks_by_ad_platform` |
-| `agg_clicks_by_referrer_domain_json` | `clicks_by_referrer_domain` |
-| `agg_spend_by_day_json` | `spend_by_day` |
-| `agg_spend_by_target_json` | `spend_by_target` |
-| `agg_updated_at` | `updated_at` |
+| Поле export                          | Источник agg                                           |
+|--------------------------------------|--------------------------------------------------------|
+| `agg_total_clicks`                   | `total_clicks`                                         |
+| `agg_bot_clicks_total`               | `bot_clicks_total`                                     |
+| `agg_failed_captcha_total`           | `failed_captcha_total`                                 |
+| `agg_failed_password_total`          | `failed_password_total`                                |
+| `agg_avg_ttfb_ms`                    | `sum_ttfb_ms / ttfb_samples`                           |
+| `agg_spend_total`                    | `spend_total`                                          |
+| `agg_clicks_by_day_json`             | `clicks_by_day` (+ `stats_by_day` day-map при наличии) |
+| `agg_clicks_by_os_json`              | `clicks_by_os`                                         |
+| `agg_clicks_by_device_json`          | `clicks_by_device`                                     |
+| `agg_clicks_by_browser_json`         | `clicks_by_browser`                                    |
+| `agg_clicks_by_country_json`         | `clicks_by_country`                                    |
+| `agg_clicks_by_region_json`          | `clicks_by_region` (`RU-NIZ`, …; см. geo migration)    |
+| `agg_clicks_by_status_code_json`     | `clicks_by_status_code`                                |
+| `agg_clicks_by_target_json`          | `clicks_by_target`                                     |
+| `agg_clicks_by_utm_source_json`      | `clicks_by_utm_source`                                 |
+| `agg_clicks_by_utm_medium_json`      | `clicks_by_utm_medium`                                 |
+| `agg_clicks_by_utm_campaign_json`    | `clicks_by_utm_campaign`                               |
+| `agg_clicks_by_utm_content_json`     | `clicks_by_utm_content`                                |
+| `agg_clicks_by_utm_term_json`        | `clicks_by_utm_term`                                   |
+| `agg_clicks_by_ad_platform_json`     | `clicks_by_ad_platform`                                |
+| `agg_clicks_by_referrer_domain_json` | `clicks_by_referrer_domain`                            |
+| `agg_spend_by_day_json`              | `spend_by_day`                                         |
+| `agg_spend_by_target_json`           | `spend_by_target`                                      |
+| `agg_updated_at`                     | `updated_at`                                           |
 
 JSON-колонки сериализуются как escaped JSON string в CSV или как nested
 object в NDJSON.
@@ -168,20 +166,20 @@ README.txt             # краткая расшифровка для челов
 
 ## Форматы файлов и сжатие
 
-| `format` | MIME | Когда использовать |
-|----------|------|-------------------|
-| `csv` | `text/csv; charset=utf-8` | Excel, Google Sheets, простые пайплайны |
-| `tsv` | `text/tab-separated-values` | Alias «txt» с табуляцией |
-| `ndjson` | `application/x-ndjson` | **≥ 100k строк**, стриминг, ETL |
-| `json` | `application/json` | Только preview / малые выгрузки (< 10 MB) |
+| `format` | MIME                        | Когда использовать                        |
+|----------|-----------------------------|-------------------------------------------|
+| `csv`    | `text/csv; charset=utf-8`   | Excel, Google Sheets, простые пайплайны   |
+| `tsv`    | `text/tab-separated-values` | Alias «txt» с табуляцией                  |
+| `ndjson` | `application/x-ndjson`      | **≥ 100k строк**, стриминг, ETL           |
+| `json`   | `application/json`          | Только preview / малые выгрузки (< 10 MB) |
 
 ### Gzip
 
-| Направление | Поведение |
-|-------------|-----------|
-| **Download** | Сжатие задаётся при `POST …/exports` (`compress=gzip\|none`) и отражено в имени файла (`.gz`). Query на download **нет**. Заголовки: `Content-Encoding: gzip` для не-zip `.gz`, `Content-Type` по формату, `Content-Disposition: attachment; filename*=UTF-8''…`, опционально `X-Content-SHA256`. |
-| **Upload (import)** | Тело create — JSON. Данные: `inline_csv` (UTF-8 строка) или `upload_relative_path` к уже загруженному объекту. Gzip-файл как multipart **не** принимается этой ручкой. |
-| **Accept-Encoding** | Браузер может дополнительно сжать HTTP-транспорт; логически файл уже `.csv.gz`. |
+| Направление         | Поведение                                                                                                                                                                                                                                                                                         |
+|---------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Download**        | Сжатие задаётся при `POST …/exports` (`compress=gzip\|none`) и отражено в имени файла (`.gz`). Query на download **нет**. Заголовки: `Content-Encoding: gzip` для не-zip `.gz`, `Content-Type` по формату, `Content-Disposition: attachment; filename*=UTF-8''…`, опционально `X-Content-SHA256`. |
+| **Upload (import)** | Тело create — JSON. Данные: `inline_csv` (UTF-8 строка) или `upload_relative_path` к уже загруженному объекту. Gzip-файл как multipart **не** принимается этой ручкой.                                                                                                                            |
+| **Accept-Encoding** | Браузер может дополнительно сжать HTTP-транспорт; логически файл уже `.csv.gz`.                                                                                                                                                                                                                   |
 
 Пример download:
 
@@ -226,28 +224,28 @@ Content-Length: 18432003
 }
 ```
 
-| `status` | Описание |
-|----------|----------|
-| `pending` | Создан, runner ещё не стартовал |
-| `running` | Идёт чтение / запись |
-| `completed` | Файл готов к download |
-| `failed` | Ошибка; см. `error.kind` |
-| `cancelled` | Отменён пользователем |
-| `expired` | TTL download истёк; объект удаляется ILM |
+| `status`    | Описание                                 |
+|-------------|------------------------------------------|
+| `pending`   | Создан, runner ещё не стартовал          |
+| `running`   | Идёт чтение / запись                     |
+| `completed` | Файл готов к download                    |
+| `failed`    | Ошибка; см. `error.kind`                 |
+| `cancelled` | Отменён пользователем                    |
+| `expired`   | TTL download истёк; объект удаляется ILM |
 
 ### SSE (основной способ)
 
 Модуль доступен только при `subscription_plans.transfer_daily_bytes > 0`.
 Клиент **не поллит** — открывает EventSource на `events_url` из 202 ответа.
 
-| Параметр | Значение |
-|----------|----------|
-| Endpoint | `GET …/exports/{job_id}/events` или `…/imports/{job_id}/events` |
-| `Content-Type` | `text/event-stream` |
-| События | `snapshot`, `progress`, `completed`, `failed`, `cancelled` |
-| `data` | JSON тела job (как в snapshot GET) |
-| Concurrent jobs | 1 active export + 1 active import на scope |
-| Runner | in-process `tokio::spawn` в `http-api` (отдельный worker **не** нужен) |
+| Параметр        | Значение                                                               |
+|-----------------|------------------------------------------------------------------------|
+| Endpoint        | `GET …/exports/{job_id}/events` или `…/imports/{job_id}/events`        |
+| `Content-Type`  | `text/event-stream`                                                    |
+| События         | `snapshot`, `progress`, `completed`, `failed`, `cancelled`             |
+| `data`          | JSON тела job (как в snapshot GET)                                     |
+| Concurrent jobs | 1 active export + 1 active import на scope                             |
+| Runner          | in-process `tokio::spawn` в `http-api` (отдельный worker **не** нужен) |
 
 `GET …/exports/{job_id}` без `/events` — одноразовый snapshot (удобно после
 reconnect); **не** использовать как polling-loop.
@@ -260,7 +258,10 @@ reconnect); **не** использовать как polling-loop.
   "filename": "shorts-scope-10000001-20260721.csv.gz",
   "size_bytes": 18432003,
   "sha256": "a1b2…",
-  "row_counts": { "shorts": 8420, "clicks": 4800000 }
+  "row_counts": {
+    "shorts": 8420,
+    "clicks": 4800000
+  }
 }
 ```
 
@@ -277,26 +278,26 @@ reconnect); **не** использовать как polling-loop.
 
 Авто-маппинг при `adapter=linkly_links`:
 
-| Linkly column | Наше поле | Примечание |
-|---------------|-----------|------------|
-| `name` | `description` | |
-| `note` | `description` (append) | склеивается через `\n` |
-| `url` | `targets[0].url` | primary destination |
-| `slug` | `short_name` | без domain |
-| `domain` | `subdomain` | если совпадает с нашим subdomain |
-| `utm_source` … `utm_content` | `targets[0].utm.*` | |
-| `enabled` | `is_active` | `false` → деактивировать после import |
-| `deleted` / `retired` | `is_archived` | `true` → archived |
-| `password` | `set_password` | plaintext при import; хешируется Argon2 |
-| `expiry_datetime` | `expiration_time` | ISO / `YYYY-MM-DD HH:MM:SS` UTC |
-| `expiry_clicks` | `max_clicks` | |
-| `expiry_destination` | `targets[0].url` fallback | если основной url пуст |
-| `inserted_at` | `created_at` | metadata-only, не перезаписывает PK |
-| `updated_at` | `updated_at` | metadata |
-| `clicks_total` | merge в `link_short_agg` | см. [Import статистики](#import-статистики-raw--agg) |
-| `clicks_thirty_days` | `import_hints.clicks_30d` | справочно |
-| `full_url` | `import_hints.source_url` | для отчёта миграции |
-| `id` (Linkly) | `import_hints.external_id` | traceability |
+| Linkly column                | Наше поле                  | Примечание                                           |
+|------------------------------|----------------------------|------------------------------------------------------|
+| `name`                       | `description`              |                                                      |
+| `note`                       | `description` (append)     | склеивается через `\n`                               |
+| `url`                        | `targets[0].url`           | primary destination                                  |
+| `slug`                       | `short_name`               | без domain                                           |
+| `domain`                     | `subdomain`                | если совпадает с нашим subdomain                     |
+| `utm_source` … `utm_content` | `targets[0].utm.*`         |                                                      |
+| `enabled`                    | `is_active`                | `false` → деактивировать после import                |
+| `deleted` / `retired`        | `is_archived`              | `true` → archived                                    |
+| `password`                   | `set_password`             | plaintext при import; хешируется Argon2              |
+| `expiry_datetime`            | `expiration_time`          | ISO / `YYYY-MM-DD HH:MM:SS` UTC                      |
+| `expiry_clicks`              | `max_clicks`               |                                                      |
+| `expiry_destination`         | `targets[0].url` fallback  | если основной url пуст                               |
+| `inserted_at`                | `created_at`               | metadata-only, не перезаписывает PK                  |
+| `updated_at`                 | `updated_at`               | metadata                                             |
+| `clicks_total`               | merge в `link_short_agg`   | см. [Import статистики](#import-статистики-raw--agg) |
+| `clicks_thirty_days`         | `import_hints.clicks_30d`  | справочно                                            |
+| `full_url`                   | `import_hints.source_url`  | для отчёта миграции                                  |
+| `id` (Linkly)                | `import_hints.external_id` | traceability                                         |
 
 Неподдерживаемые колонки Linkly (pixels, webhooks, qr_styles, cloaking, …)
 → `import_warnings[]`, import продолжается.
@@ -331,15 +332,15 @@ id,<linkly id>
 
 Типичные заголовки (регистронезависимый match):
 
-| Bitly column | Наше поле |
-|--------------|-----------|
-| `Link` / `Bitlink` | `import_hints.bitlink` |
-| `Custom Link` / `Custom Bitlink` | `short_name` (back-half) |
-| `Destination URL` / `Long URL` | `targets[0].url` |
-| `Title` | `description` |
-| `Date created` | `created_at` |
-| `Engagements` / `Clicks` | `import_hints.clicks_total` |
-| `Status` | `is_archived` если `deleted` / `archived` |
+| Bitly column                     | Наше поле                                 |
+|----------------------------------|-------------------------------------------|
+| `Link` / `Bitlink`               | `import_hints.bitlink`                    |
+| `Custom Link` / `Custom Bitlink` | `short_name` (back-half)                  |
+| `Destination URL` / `Long URL`   | `targets[0].url`                          |
+| `Title`                          | `description`                             |
+| `Date created`                   | `created_at`                              |
+| `Engagements` / `Clicks`         | `import_hints.clicks_total`               |
+| `Status`                         | `is_archived` если `deleted` / `archived` |
 
 `adapter=bitly_links`:
 
@@ -378,17 +379,17 @@ short_id,short_name,subdomain,description,folder_path,tags,redirect_type,is_capt
 
 </details>
 
-| Колонка | Обязательна при import | Описание |
-|---------|------------------------|----------|
-| `short_name` | **да** | Уникальность в `(subdomain, short_name)` |
-| `targets_json` | **да** | JSON-массив targets (см. POST /shorts bulk) |
-| `subdomain` | нет | NULL → дефолтный домен |
-| `description` | нет | |
-| `folder_path` | нет | `Marketing/2026` — создаёт папки при `create_folders=true` |
-| `tags` | нет | `\|` separated |
-| `redirect_type` | нет | default 302 |
-| `set_password` | нет | plaintext; mutual exclusive с `has_password` |
-| `short_id` | нет | только export; при import игнорируется (новые id) |
+| Колонка         | Обязательна при import | Описание                                                   |
+|-----------------|------------------------|------------------------------------------------------------|
+| `short_name`    | **да**                 | Уникальность в `(subdomain, short_name)`                   |
+| `targets_json`  | **да**                 | JSON-массив targets (см. POST /shorts bulk)                |
+| `subdomain`     | нет                    | NULL → дефолтный домен                                     |
+| `description`   | нет                    |                                                            |
+| `folder_path`   | нет                    | `Marketing/2026` — создаёт папки при `create_folders=true` |
+| `tags`          | нет                    | `\|` separated                                             |
+| `redirect_type` | нет                    | default 302                                                |
+| `set_password`  | нет                    | plaintext; mutual exclusive с `has_password`               |
+| `short_id`      | нет                    | только export; при import игнорируется (новые id)          |
 
 Полный перечень колонок — `GET /transfer/formats?schema=native_shorts`.
 
@@ -400,7 +401,38 @@ short_id,short_name,subdomain,description,folder_path,tags,redirect_type,is_capt
 <summary><b>clicks.ndjson — одна строка = одно событие</b></summary>
 
 ```json
-{"event_id":"…","short_id":10000042,"short_name":"summer-sale","subdomain":null,"target_id":1,"scope_id":10000001,"occurred_at":"2026-07-21T14:03:11Z","ip":"203.0.113.10","geo_country":"RU","geo_region":"RU-MOW","geo_city":"Moscow","geo_lat":55.75,"geo_lon":37.62,"os":"android","device":"mobile","browser":"chrome","referrer":"https://t.me/…","referrer_domain":"t.me","status_code":302,"ttfb_ms":12,"is_bot":false,"destination_url":"https://example.com/?utm_source=yandex","utm_source":"yandex","utm_medium":"cpc","utm_campaign":"summer","utm_content":null,"utm_term":null,"ad_platform":"yandex_direct","cpc_charged":"12.50","macro_values":{}}
+{
+  "event_id": "…",
+  "short_id": 10000042,
+  "short_name": "summer-sale",
+  "subdomain": null,
+  "target_id": 1,
+  "scope_id": 10000001,
+  "occurred_at": "2026-07-21T14:03:11Z",
+  "ip": "203.0.113.10",
+  "geo_country": "RU",
+  "geo_region": "RU-MOW",
+  "geo_city": "Moscow",
+  "geo_lat": 55.75,
+  "geo_lon": 37.62,
+  "os": "android",
+  "device": "mobile",
+  "browser": "chrome",
+  "referrer": "https://t.me/…",
+  "referrer_domain": "t.me",
+  "status_code": 302,
+  "ttfb_ms": 12,
+  "is_bot": false,
+  "destination_url": "https://example.com/?utm_source=yandex",
+  "utm_source": "yandex",
+  "utm_medium": "cpc",
+  "utm_campaign": "summer",
+  "utm_content": null,
+  "utm_term": null,
+  "ad_platform": "yandex_direct",
+  "cpc_charged": "12.50",
+  "macro_values": {}
+}
 ```
 
 </details>
@@ -427,7 +459,8 @@ flowchart TD
 
 ### Проверка лимита shorts
 
-Аналог [`SubscriptionService::check_short_limit`](../../../../services/backend/src/services/src/services/impls/subscription_service.rs)
+Аналог [
+`SubscriptionService::check_short_limit`](../../../../services/backend/src/services/src/services/impls/subscription_service.rs)
 при create/bulk:
 
 ```
@@ -475,7 +508,10 @@ limit        = subscription_plans.max_shorts
   "kind": "subdomain_not_payed_error",
   "reason": "В файле указаны subdomain, которых нет у аккаунта",
   "details": {
-    "missing_subdomains": ["brand", "promo-campaign"],
+    "missing_subdomains": [
+      "brand",
+      "promo-campaign"
+    ],
     "referenced_in_rows": 1240,
     "plan_max_subdomains": 0,
     "owned_subdomains": []
@@ -500,10 +536,10 @@ cutoff = now() - stats_click_retention_days   // план владельца sco
 
 Если в файле есть события с `occurred_at < cutoff`:
 
-| `ignore_retention_limit` | Поведение |
-|--------------------------|-----------|
-| `false` (default) | **400** `stats_retention_error`, job не создаётся |
-| `true` | Job создаётся; события **вне окна** пишутся **только в agg**, raw пропускаются |
+| `ignore_retention_limit` | Поведение                                                                      |
+|--------------------------|--------------------------------------------------------------------------------|
+| `false` (default)        | **400** `stats_retention_error`, job не создаётся                              |
+| `true`                   | Job создаётся; события **вне окна** пишутся **только в agg**, raw пропускаются |
 
 <details open>
 <summary><b>Пример stats_retention_error</b></summary>
@@ -537,10 +573,10 @@ Gate в коде: `subscription_plans.transfer_daily_bytes > 0` (см.
 `transfer_enabled` в планах может существовать как справочник, но HTTP API
 ориентируется на дневной лимит байт.
 
-| План | Типично `transfer_daily_bytes` |
-|------|--------------------------------|
-| FREE, FREE_PLUS | `0` → 402 |
-| PERSONAL и выше | `> 0` |
+| План            | Типично `transfer_daily_bytes` |
+|-----------------|--------------------------------|
+| FREE, FREE_PLUS | `0` → 402                      |
+| PERSONAL и выше | `> 0`                          |
 
 Любая **мутирующая** data-heavy ручка (export/import create, preflight)
 проверяет gate **до** постановки job / ответа.
@@ -557,14 +593,14 @@ Gate в коде: `subscription_plans.transfer_daily_bytes > 0` (см.
 — только когда событие попадает в окно retention (или при export-обратном import
 с явными `event_id`).
 
-| Источник import | Raw | Agg |
-|-----------------|-----|-----|
-| `linkly_clicks_pivot` | — | merge `clicks_by_day`, пересчёт `total_clicks`, maps |
-| `links.csv` → `clicks_total` | — | bump `total_clicks` (не уменьшает) |
-| Native `agg_*_json` колонки | — | merge maps / counters |
-| Native `clicks.ndjson` (в retention) | INSERT + dedup | bump через ту же логику, что `stats_reader.record_click` |
-| Native `clicks.ndjson` (вне retention, `ignore_retention_limit=true`) | **skip** | bump agg only (`import_agg_from_event`) |
-| Export → re-import `full` | по правилам выше | merge agg полей из файла |
+| Источник import                                                       | Raw              | Agg                                                      |
+|-----------------------------------------------------------------------|------------------|----------------------------------------------------------|
+| `linkly_clicks_pivot`                                                 | —                | merge `clicks_by_day`, пересчёт `total_clicks`, maps     |
+| `links.csv` → `clicks_total`                                          | —                | bump `total_clicks` (не уменьшает)                       |
+| Native `agg_*_json` колонки                                           | —                | merge maps / counters                                    |
+| Native `clicks.ndjson` (в retention)                                  | INSERT + dedup   | bump через ту же логику, что `stats_reader.record_click` |
+| Native `clicks.ndjson` (вне retention, `ignore_retention_limit=true`) | **skip**         | bump agg only (`import_agg_from_event`)                  |
+| Export → re-import `full`                                             | по правилам выше | merge agg полей из файла                                 |
 
 **Agg-only path** (`import_agg_from_event` / merge maps):
 
@@ -593,14 +629,14 @@ conflict и byte-quota; лимиты shorts/subdomain/retention клиент о�
 
 ### Если токен украден — что может атакующий?
 
-| Действие | Защита |
-|----------|--------|
+| Действие                                     | Защита                                                                                              |
+|----------------------------------------------|-----------------------------------------------------------------------------------------------------|
 | Пропустить preflight, сразу `POST …/imports` | Paywall `transfer_daily_bytes`, conflict, byte-quota; лимиты shorts/subdomain — на клиенте / runner |
-| FREE-аккаунт (`transfer_daily_bytes=0`) | **402** `transfer_not_payed_error` — runner не стартует |
-| Платный аккаунт, большие inline | Cap `transfer.max_import_upload_bytes` → 400; суточная квота байт → 429 |
-| Много параллельных job | Max **1** active export + **1** active import на scope |
-| Status / SSE | Обычный API auth; без файлов |
-| `GET /transfer/formats` | Публично, статический JSON |
+| FREE-аккаунт (`transfer_daily_bytes=0`)      | **402** `transfer_not_payed_error` — runner не стартует                                             |
+| Платный аккаунт, большие inline              | Cap `transfer.max_import_upload_bytes` → 400; суточная квота байт → 429                             |
+| Много параллельных job                       | Max **1** active export + **1** active import на scope                                              |
+| Status / SSE                                 | Обычный API auth; без файлов                                                                        |
+| `GET /transfer/formats`                      | Публично, статический JSON                                                                          |
 
 ```mermaid
 flowchart LR
@@ -631,17 +667,17 @@ flowchart LR
 
 ## Лимиты, retention, безопасность
 
-| Ограничение | Значение |
-|-------------|----------|
-| Max import inline (`inline_csv`) | `transfer.max_import_upload_bytes` |
-| Max rows per import batch | `transfer.max_import_rows` |
-| Job TTL (download) | `transfer.job_ttl` (типично 24 ч) |
-| Daily transfer volume | `subscription_plans.transfer_daily_bytes` |
-| Raw clicks export | только в пределах `stats_click_retention_days` |
-| Пароли | export: флаг only; import: Argon2 server-side |
-| Авторизация | Bearer или X-Api-Key; scope ownership / key scope |
-| Gate модуля | `transfer_daily_bytes > 0` → иначе 402 |
-| Concurrent jobs | 1 active export + 1 active import на scope |
+| Ограничение                      | Значение                                          |
+|----------------------------------|---------------------------------------------------|
+| Max import inline (`inline_csv`) | `transfer.max_import_upload_bytes`                |
+| Max rows per import batch        | `transfer.max_import_rows`                        |
+| Job TTL (download)               | `transfer.job_ttl` (типично 24 ч)                 |
+| Daily transfer volume            | `subscription_plans.transfer_daily_bytes`         |
+| Raw clicks export                | только в пределах `stats_click_retention_days`    |
+| Пароли                           | export: флаг only; import: Argon2 server-side     |
+| Авторизация                      | Bearer или X-Api-Key; scope ownership / key scope |
+| Gate модуля                      | `transfer_daily_bytes > 0` → иначе 402            |
+| Concurrent jobs                  | 1 active export + 1 active import на scope        |
 
 Ошибки import строк не отменяют весь job при `on_row_error=continue` (default):
 sidecar `errors.ndjson.gz` с `{ row, kind, reason }` — `GET …/imports/{job_id}/errors`.
@@ -652,7 +688,6 @@ sidecar `errors.ndjson.gz` с `{ row, kind, reason }` — `GET …/imports/{job_
 
 | Метод    | Путь                                          | Auth | Описание                          |
 |----------|-----------------------------------------------|------|-----------------------------------|
-| `GET`    | `/transfer/formats`                           | —    | Схемы и адаптеры                  |
 | `POST`   | `/transfer/{scope}/exports`                   | 🔒   | Создать export job                |
 | `GET`    | `/transfer/{scope}/exports/{job_id}`          | 🔒   | Snapshot статуса export           |
 | `GET`    | `/transfer/{scope}/exports/{job_id}/events`   | 🔒   | SSE прогресс export               |
