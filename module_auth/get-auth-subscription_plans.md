@@ -12,8 +12,6 @@
 | **Важно**      | `is_view` **не** влияет на `GET /auth/profile` (`subscription_plan` / `upgrade_plan`) и лимиты — |
 |                | там план читается по `users.subscription` целиком.                                               |
 
-На запуске без платёжного модуля в каталоге виден только `FREE_PLUS` (`is_view = true`). Остальные тарифы в БД остаются и отдаются в профиле / используются в проверках лимитов.
-
 ---
 
 | Kind         | Код | Описание                   |
@@ -36,6 +34,7 @@
       "max_subdomains": 0,
       "max_shorts": 300,
       "max_seats": null,
+      "max_api_keys_per_scope": 10,
       "stats_click_retention_days": 90,
       "is_corporate": false,
       "description": "Бесплатный расширенный тариф на период запуска (без оплаты)"
