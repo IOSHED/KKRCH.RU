@@ -301,17 +301,18 @@ create/PATCH. Состояние считает сервер.
 
 Приоритет (выше → важнее):
 
-| Приоритет | `inactive_reason`       | Условие                      |
-|-----------|-------------------------|------------------------------|
-| 70        | `custom_domain_deleted` | custom domain soft-deleted   |
-| 70        | `subdomain_deleted`     | subdomain soft-deleted       |
-| 65        | `url_unsafe`            | Safe Browsing: malware/phish |
-| 60        | `expired`               | `expiration_time <= now`     |
-| 50        | `max_clicks`            | `clicks_count >= max_clicks` |
-| 40        | `budget`                | `spent >= budget`            |
-| 30        | `targets_exhausted`     | нет активных targets         |
-| 20        | `archived`              | `is_archived = true`         |
-| 10        | `not_started`           | `beginning_time > now`       |
+| Приоритет | `inactive_reason`       | Условие                                  |
+|-----------|-------------------------|------------------------------------------|
+| 70        | `custom_domain_deleted` | custom domain soft-deleted               |
+| 70        | `subdomain_deleted`     | subdomain soft-deleted                   |
+| 65        | `url_unsafe`            | Safe Browsing: malware/phish             |
+| 60        | `expired`               | `expiration_time <= now`                 |
+| 50        | `max_clicks`            | `clicks_count >= max_clicks`             |
+| 40        | `budget`                | `spent >= budget`                        |
+| 30        | `targets_exhausted`     | нет активных targets                     |
+| **25**    | **`not_payed`**         | excess после post-cooling FREE (payment) |
+| 20        | `archived`              | `is_archived = true`                     |
+| 10        | `not_started`           | `beginning_time > now`                   |
 
 Примеры:
 
@@ -666,31 +667,31 @@ sequenceDiagram
 
 ## Сводная таблица эндпоинтов
 
-| Метод    | Путь                             | Авторизация            | Описание                            |
-|----------|----------------------------------|------------------------|-------------------------------------|
-| `POST`   | `/shorts/{scope:int?}`           | 🔒 Bearer \| X-Api-Key | Создание короткой ссылки            |
-| `GET`    | `/shorts/{scope:int?}`           | 🔒 Bearer \| X-Api-Key | Список ссылок                       |
-| `POST`   | `/shorts/{scope:int?}/bulk`      | 🔒 Bearer \| X-Api-Key | Массовое создание ссылок            |
-| `DELETE` | `/shorts/bulk`                   | 🔒 Bearer \| X-Api-Key | Массовое удаление ссылок            |
-| `GET`    | `/shorts/availability`           | 🔒 Bearer \| X-Api-Key | Проверка доступности short_name     |
-| `POST`   | `/folders/{scope:int?}/bulk`     | 🔒 Bearer \| X-Api-Key | Массовое создание папок             |
+| Метод    | Путь                             | Авторизация            | Описание                              |
+|----------|----------------------------------|------------------------|---------------------------------------|
+| `POST`   | `/shorts/{scope:int?}`           | 🔒 Bearer \| X-Api-Key | Создание короткой ссылки              |
+| `GET`    | `/shorts/{scope:int?}`           | 🔒 Bearer \| X-Api-Key | Список ссылок                         |
+| `POST`   | `/shorts/{scope:int?}/bulk`      | 🔒 Bearer \| X-Api-Key | Массовое создание ссылок              |
+| `DELETE` | `/shorts/bulk`                   | 🔒 Bearer \| X-Api-Key | Массовое удаление ссылок              |
+| `GET`    | `/shorts/availability`           | 🔒 Bearer \| X-Api-Key | Проверка доступности short_name       |
+| `POST`   | `/folders/{scope:int?}/bulk`     | 🔒 Bearer \| X-Api-Key | Массовое создание папок               |
 | `DELETE` | `/folders/bulk`                  | 🔒 Bearer \| X-Api-Key | Массовое удаление папок (`on_shorts`) |
-| `GET`    | `/folders/{scope:int?}`          | 🔒 Bearer \| X-Api-Key | Список папок                        |
-| `PATCH`  | `/folders/{folder_id:uuid}/move` | 🔒 Bearer \| X-Api-Key | Перемещение папки                   |
-| `PATCH`  | `/folders/{folder_id:uuid}`      | 🔒 Bearer \| X-Api-Key | Обновление папки                    |
-| `GET`    | `/{short_name:str}`              | —                      | Редирект                            |
-| `PATCH`  | `/shorts/bulk`                   | 🔒 Bearer \| X-Api-Key | Массовое обновление ссылок          |
-| `POST`   | `/scopes`                        | 🔒 Bearer              | Создание scope                      |
-| `GET`    | `/scopes`                        | 🔒 Bearer              | Список scope                        |
-| `PATCH`  | `/scopes/{scope:int?}`           | 🔒 Bearer \| X-Api-Key | Обновление scope                    |
-| `DELETE` | `/scopes/{scope:int?}`           | 🔒 Bearer              | Удаление scope                      |
-| `POST`   | `/subdomains`                    | 🔒 Bearer \| X-Api-Key | Создание subdomain                  |
-| `GET`    | `/subdomains`                    | 🔒 Bearer \| X-Api-Key | Список subdomains                   |
-| `DELETE` | `/subdomains/{subdomain:str}`    | 🔒 Bearer \| X-Api-Key | Удаление subdomain                  |
-| `POST`   | `/custom-domains`                | 🔒 Bearer \| X-Api-Key | Регистрация домена + TXT инструкции |
-| `GET`    | `/custom-domains`                | 🔒 Bearer \| X-Api-Key | Список custom domains               |
-| `POST`   | `/custom-domains/verify`         | 🔒 Bearer \| X-Api-Key | Проверка TXT + routing              |
-| `DELETE` | `/custom-domains`                | 🔒 Bearer \| X-Api-Key | Удаление custom domain              |
+| `GET`    | `/folders/{scope:int?}`          | 🔒 Bearer \| X-Api-Key | Список папок                          |
+| `PATCH`  | `/folders/{folder_id:uuid}/move` | 🔒 Bearer \| X-Api-Key | Перемещение папки                     |
+| `PATCH`  | `/folders/{folder_id:uuid}`      | 🔒 Bearer \| X-Api-Key | Обновление папки                      |
+| `GET`    | `/{short_name:str}`              | —                      | Редирект                              |
+| `PATCH`  | `/shorts/bulk`                   | 🔒 Bearer \| X-Api-Key | Массовое обновление ссылок            |
+| `POST`   | `/scopes`                        | 🔒 Bearer              | Создание scope                        |
+| `GET`    | `/scopes`                        | 🔒 Bearer              | Список scope                          |
+| `PATCH`  | `/scopes/{scope:int?}`           | 🔒 Bearer \| X-Api-Key | Обновление scope                      |
+| `DELETE` | `/scopes/{scope:int?}`           | 🔒 Bearer              | Удаление scope                        |
+| `POST`   | `/subdomains`                    | 🔒 Bearer \| X-Api-Key | Создание subdomain                    |
+| `GET`    | `/subdomains`                    | 🔒 Bearer \| X-Api-Key | Список subdomains                     |
+| `DELETE` | `/subdomains/{subdomain:str}`    | 🔒 Bearer \| X-Api-Key | Удаление subdomain                    |
+| `POST`   | `/custom-domains`                | 🔒 Bearer \| X-Api-Key | Регистрация домена + TXT инструкции   |
+| `GET`    | `/custom-domains`                | 🔒 Bearer \| X-Api-Key | Список custom domains                 |
+| `POST`   | `/custom-domains/verify`         | 🔒 Bearer \| X-Api-Key | Проверка TXT + routing                |
+| `DELETE` | `/custom-domains`                | 🔒 Bearer \| X-Api-Key | Удаление custom domain                |
 
 ---
 

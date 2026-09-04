@@ -11,7 +11,9 @@
 |                | 4. Получает список связанных OAuth-провайдеров (`oauth_accounts`).                    |
 |                | 5. Загружает текущий тарифный план из `subscription_plans` по `users.subscription`.   |
 |                | 6. Определяет следующий тариф по стоимости (+1 уровень апгрейда по `price_rub`).      |
-|                | 7. Возвращает профиль, текущий план и `upgrade_plan` (`null` на максимальном тарифе). |
+|                | 7. Добавляет billing-поля: `subscription_ends_at`, `cooling_until`, `is_cooling`,     |
+|                | &nbsp;&nbsp;&nbsp;`cooling_enforced` (см. [module_payment](../module_payment.md)).    |
+|                | 8. Возвращает профиль, текущий план и `upgrade_plan` (`null` на максимальном тарифе). |
 
 ---
 
@@ -35,9 +37,13 @@
     "email": "user@example.com",
     "display_name": "John",
     "subscription": "FREE",
+    "subscription_ends_at": "2026-09-01T00:00:00Z",
+    "cooling_until": "2026-09-08T00:00:00Z",
+    "is_cooling": true,
+    "cooling_enforced": false,
     "roles": [],
     "created_at": "2025-01-15T10:00:00Z",
-    "updated_at": "2025-01-17T10:00:00Z"
+    "updated_at": "2026-09-01T00:00:05Z"
   },
   "subscription_plan": {
     "id": "FREE",
@@ -53,7 +59,7 @@
   },
   "upgrade_plan": {
     "id": "PERSONAL",
-    "price_rub": 100,
+    "price_rub": 199,
     "max_scopes": 2,
     "max_subdomains": 0,
     "max_shorts": 300,
@@ -66,5 +72,8 @@
 }
 ```
 
+> В cooling `subscription` уже `FREE`, но `is_cooling=true` — UI показывает
+> баннер и не обещает платные лимиты. См.
+> [module_payment](../module_payment.md#срок-подписки-и-cooling).
 </details>
 

@@ -65,7 +65,8 @@
 | [**Support**](./module_support.md)           | Тикеты, жалобы на контент, вложения, admin          | реализовано       |
 | [**Notification**](./module_notification.md) | Inbox, preferences, polling ≥15 с                   | реализовано       |
 | [**Feedback**](./module_feedback.md)         | In-app оценка полезности (1× на аккаунт)            | реализовано       |
-| [**Transfer**](./module_transfer.md)         | Импорт / экспорт (миграция с Bitly и др.)           | контракт / дизайн |
+| [**Transfer**](./module_transfer.md)         | Импорт / экспорт (миграция с Bitly и др.)           | документировано   |
+| [**Payment**](./module_payment.md)           | ЮKassa: виджет, апгрейд, возвраты, cooling 7d       | документировано   |
 
 Внутри каждой папки `module_*/` — детальные файлы по эндпоинтам
 (метод, путь, тело, ответы, коды ошибок).

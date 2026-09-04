@@ -52,7 +52,8 @@
 }
 ```
 
-Для консистентности данных в Postgres и Redis реализован [Session Watcher Service](../session_watcher.md).
+Для консистентности данных в Postgres и Redis реализован [Session Watcher Service](../session_watcher.md)
+(в т.ч. lifecycle подписки / cooling — см. [Payment](module_payment.md)).
 
 Типы подписки (см. также [subscription_politics](../../business/subscription_politics.md)):
 
@@ -126,7 +127,7 @@ sequenceDiagram
 
 | Таблица              | Назначение                                                                      |
 |----------------------|---------------------------------------------------------------------------------|
-| `users`              | Профиль пользователя (id, email, display_name, subscription, roles)             |
+| `users`              | Профиль пользователя (id, email, display_name, subscription, roles; billing: `subscription_ends_at`, `cooling_until`, `cooling_enforced_at` — [Payment](module_payment.md)) |
 | `oauth_accounts`     | OAuth-провайдер пользователя (provider, user_id) — один аккаунт, один провайдер |
 | `subscription_plans` | Справочник тарифных планов с лимитами; `is_view` — видимость в GET `/auth/subscription_plans` |
 | `sessions`           | Аудит сессий, ревокация, revocation_reason                                      |
