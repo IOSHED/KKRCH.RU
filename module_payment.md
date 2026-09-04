@@ -421,7 +421,36 @@ payment:
 ```
 
 Секреты **не** в git; в `deploy/.env.prod.example` — плейсхолдеры
-`YOOKASSA_SHOP_ID`, `YOOKASSA_SECRET_KEY`.
+`APP__PAYMENT__SHOP_ID`, `APP__PAYMENT__SECRET_KEY`, `APP__PAYMENT__RETURN_URL`.
+
+### URL для уведомлений (кабинет ЮKassa)
+
+В ЛК это не «webhook», а **HTTP-уведомления**
+([документация](https://yookassa.ru/developers/using-api/webhooks)):
+раздел **Интеграция → HTTP-уведомления**.
+
+Требования ЮKassa к URL:
+
+- только **HTTPS**;
+- TCP-порт **443** или **8443**;
+- полный путь на ваш домен, например  
+  `https://ккрч.рф/api/v1/payments/webhook`
+  (гео/регион магазина задаётся в настройках магазина, не в URL).
+
+События: `payment.succeeded`, `payment.canceled`, `refund.succeeded`,
+`refund.canceled`.
+
+**Localhost:** ЮKassa не достучится до `http://127.0.0.1`. Варианты:
+
+1. **Туннель** (ngrok / Cloudflare Tunnel / аналог) → публичный HTTPS →
+   проброс на локальный порт API; этот HTTPS URL указать в ЛК тестового
+   магазина.
+2. **Без уведомлений:** после виджета поллить
+   [`GET /payments/{id}`](module_payment/get-payments-payment_id.md)
+   (сверка с ЮKassa GET при `pending` старше `sync_pending_min_age`);
+   webhook всё равно нужен в prod как источник истины.
+3. **Ручной POST** тестового JSON на локальный
+   `/api/v1/payments/webhook` (при пустом `webhook_ip_allowlist`).
 
 ---
 
