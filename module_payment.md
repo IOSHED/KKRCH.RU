@@ -411,8 +411,16 @@ payment:
   secret_key: "..."           # из секретов / env
   return_url: "https://ккрч.рф/billing/result"
   webhook_path: "/api/v1/payments/webhook"
-  # IP allowlist ЮKassa (доп. к проверке объекта платежа GET /v3/payments/{id})
-  webhook_ip_allowlist: []
+  # IP/CIDR allowlist ЮKassa (доп. к сверке GET /v3/payments/{id})
+  # https://yookassa.ru/developers/using-api/webhooks#ip
+  webhook_ip_allowlist:
+    - "185.71.76.0/27"
+    - "185.71.77.0/27"
+    - "77.75.153.0/25"
+    - "77.75.156.11"
+    - "77.75.156.35"
+    - "77.75.154.128/25"
+    - "2a02:5180::/32"
   full_refund_days: 3         # полное окно возврата
   cooling_days: 7
   days_per_month: 30

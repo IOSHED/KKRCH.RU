@@ -62,12 +62,12 @@
 <details>
 <summary><b>Обрабатываемые события</b></summary>
 
-| Event               | Действие                               |
-|---------------------|----------------------------------------|
+| Event               | Действие                                                   |
+|---------------------|------------------------------------------------------------|
 | `payment.succeeded` | purchase/renewal — дни; upgrade — plan, ends_at без сдвига |
-| `payment.canceled`  | `payments.status = canceled`           |
-| `refund.succeeded`  | Списать дни / обновить refunded_amount |
-| `refund.canceled`   | Пометить refund canceled               |
-| прочие              | 200 + log                              |
+| `payment.canceled`  | `payments.status = canceled`                               |
+| `refund.succeeded`  | Списать дни / обновить refunded_amount                     |
+| `refund.canceled`   | Пометить refund canceled                                   |
+| прочие              | 200 + log                                                  |
 
 </details>
