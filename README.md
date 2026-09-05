@@ -57,16 +57,16 @@
 
 ## Модули
 
-| Модуль                                       | О чём                                               | Статус            |
-|----------------------------------------------|-----------------------------------------------------|-------------------|
-| [**Auth**](./module_auth.md)                 | OAuth, refresh, профиль, сессии, тарифы             | реализовано       |
-| [**Short**](./module_short.md)               | Ссылки, папки, scope, поддомены, публичный редирект | реализовано       |
-| [**Stats**](./module_stats.md)               | Overview / series / breakdown / ranking             | реализовано       |
-| [**Support**](./module_support.md)           | Тикеты, жалобы на контент, вложения, admin          | реализовано       |
-| [**Notification**](./module_notification.md) | Inbox, preferences, polling ≥15 с                   | реализовано       |
-| [**Feedback**](./module_feedback.md)         | In-app оценка полезности (1× на аккаунт)            | реализовано       |
-| [**Transfer**](./module_transfer.md)         | Импорт / экспорт (миграция с Bitly и др.)           | документировано   |
-| [**Payment**](./module_payment.md)           | ЮKassa: виджет, апгрейд, возвраты, cooling 7d       | документировано   |
+| Модуль                                              | О чём                                                    | Статус          |
+|-----------------------------------------------------|----------------------------------------------------------|-----------------|
+| [**Auth**](./module_auth.md)                        | OAuth, refresh, профиль, сессии, тарифы                  | реализовано     |
+| [**Short**](./module_short.md)                      | Ссылки, папки, scope, поддомены, публичный редирект      | реализовано     |
+| [**Stats**](./module_stats.md)                      | Overview / series / breakdown / ranking                  | реализовано     |
+| [**Support**](./module_support.md)                  | Тикеты, жалобы на контент, вложения, admin               | реализовано     |
+| [**Notification**](./module_notification.md)        | Inbox, preferences, polling ≥15 с                        | реализовано     |
+| [**Feedback**](./module_feedback.md)                | In-app оценка полезности (1× на аккаунт)                 | реализовано     |
+| [**Transfer**](./module_transfer.md)                | Импорт / экспорт (миграция с Bitly и др.)                | документировано |
+| [**Payment**](../privat_http_api/module_payment.md) | ЮKassa: виджет, апгрейд, возвраты, cooling 7d, промокоды | документировано |
 
 Внутри каждой папки `module_*/` — детальные файлы по эндпоинтам
 (метод, путь, тело, ответы, коды ошибок).

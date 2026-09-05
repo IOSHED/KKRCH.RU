@@ -53,18 +53,18 @@
 ```
 
 Для консистентности данных в Postgres и Redis реализован [Session Watcher Service](../session_watcher.md)
-(в т.ч. lifecycle подписки / cooling — см. [Payment](module_payment.md)).
+(в т.ч. lifecycle подписки / cooling — см. [Payment](../privat_http_api/module_payment.md)).
 
 Типы подписки (см. также [subscription_politics](../../business/subscription_politics.md)):
 
-| Subscription | Описание |
-|--------------|----------|
-| FREE | Бесплатный доступ для ознакомления |
-| FREE_PLUS | Расширенный бесплатный тариф (публичный каталог на запуске, `is_view`) |
-| PERSONAL | Индивидуальное использование |
-| PRO | Создатели, фрилансеры |
-| BUSINESS | Малый бизнес / ИП (корп.) |
-| BUSINESS_PLUS | Растущие команды (корп.) |
+| Subscription  | Описание                                                               |
+|---------------|------------------------------------------------------------------------|
+| FREE          | Бесплатный доступ для ознакомления                                     |
+| FREE_PLUS     | Расширенный бесплатный тариф (публичный каталог на запуске, `is_view`) |
+| PERSONAL      | Индивидуальное использование                                           |
+| PRO           | Создатели, фрилансеры                                                  |
+| BUSINESS      | Малый бизнес / ИП (корп.)                                              |
+| BUSINESS_PLUS | Растущие команды (корп.)                                               |
 
 ---
 
@@ -125,12 +125,12 @@ sequenceDiagram
 
 ### PostgreSQL — долгосрочное хранение
 
-| Таблица              | Назначение                                                                      |
-|----------------------|---------------------------------------------------------------------------------|
-| `users`              | Профиль пользователя (id, email, display_name, subscription, roles; billing: `subscription_ends_at`, `cooling_until`, `cooling_enforced_at` — [Payment](module_payment.md)) |
-| `oauth_accounts`     | OAuth-провайдер пользователя (provider, user_id) — один аккаунт, один провайдер |
-| `subscription_plans` | Справочник тарифных планов с лимитами; `is_view` — видимость в GET `/auth/subscription_plans` |
-| `sessions`           | Аудит сессий, ревокация, revocation_reason                                      |
+| Таблица              | Назначение                                                                                                                                                                                     |
+|----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `users`              | Профиль пользователя (id, email, display_name, subscription, roles; billing: `subscription_ends_at`, `cooling_until`, `cooling_enforced_at` — [Payment](../privat_http_api/module_payment.md)) |
+| `oauth_accounts`     | OAuth-провайдер пользователя (provider, user_id) — один аккаунт, один провайдер                                                                                                                |
+| `subscription_plans` | Справочник тарифных планов с лимитами; `is_view` — видимость в GET `/auth/subscription_plans`                                                                                                  |
+| `sessions`           | Аудит сессий, ревокация, revocation_reason                                                                                                                                                     |
 
 ### Redis — оперативный кеш токенов
 
@@ -158,17 +158,19 @@ sequenceDiagram
 
 ### Поведение при потере данных Redis
 
-| Данные | Источник истины | Fallback при miss Redis | Примечание |
-|--------|-----------------|-------------------------|------------|
-| Access token | Redis (`access:{id}`) | **Postgres** — `sessions.current_access_token_id` + JOIN `users` | Middleware [`auth.rs`](../../../services/backend/src/views/http_api/src/actix/middleware/auth.rs) |
-| Refresh token | Redis (`refresh:{id}`) | **Нет** — payload (fingerprint, subscription) только в Redis | После eviction нужен повторный login |
-| `refresh_index:{user_id}` | Redis SET | **Частично** — Session Watcher пересобирает индекс из существующих `refresh:{id}` | Не восстанавливает сами токены |
-| `sessions.expires_at` | Postgres | — | Обновляется при login и каждом `/auth/refresh` (rolling TTL) |
-| Rate limit / ban | Redis | Fail-open (запрос пропускается) | Осознанная деградация |
-| `short:resolve:*` | Postgres | Cache miss → SELECT | Корректно, медленнее |
-| Bloom availability | Postgres | BF miss / отсутствие BF → SELECT | Корректно; ложноположительный BF → лишний SELECT |
+| Данные                    | Источник истины        | Fallback при miss Redis                                                           | Примечание                                                                                        |
+|---------------------------|------------------------|-----------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| Access token              | Redis (`access:{id}`)  | **Postgres** — `sessions.current_access_token_id` + JOIN `users`                  | Middleware [`auth.rs`](../../../services/backend/src/views/http_api/src/actix/middleware/auth.rs) |
+| Refresh token             | Redis (`refresh:{id}`) | **Нет** — payload (fingerprint, subscription) только в Redis                      | После eviction нужен повторный login                                                              |
+| `refresh_index:{user_id}` | Redis SET              | **Частично** — Session Watcher пересобирает индекс из существующих `refresh:{id}` | Не восстанавливает сами токены                                                                    |
+| `sessions.expires_at`     | Postgres               | —                                                                                 | Обновляется при login и каждом `/auth/refresh` (rolling TTL)                                      |
+| Rate limit / ban          | Redis                  | Fail-open (запрос пропускается)                                                   | Осознанная деградация                                                                             |
+| `short:resolve:*`         | Postgres               | Cache miss → SELECT                                                               | Корректно, медленнее                                                                              |
+| Bloom availability        | Postgres               | BF miss / отсутствие BF → SELECT                                                  | Корректно; ложноположительный BF → лишний SELECT                                                  |
 
-**Практический вывод:** при полной очистке Redis уже выданные **access**-токены продолжают работать до истечения access TTL (или session `expires_at` в PG). **Refresh** и **logout_all** по evicted refresh-токенам — нет; пользователь re-login после истечения access.
+**Практический вывод:** при полной очистке Redis уже выданные **access**-токены продолжают работать до истечения access
+TTL (или session `expires_at` в PG). **Refresh** и **logout_all** по evicted refresh-токенам — нет; пользователь
+re-login после истечения access.
 
 ---
 
@@ -192,14 +194,14 @@ auth:
 
 ## Сводная таблица эндпоинтов
 
-| Метод    | Путь                  | Авторизация | Описание                       |
-|----------|-----------------------|-------------|--------------------------------|
+| Метод    | Путь                       | Авторизация | Описание                       |
+|----------|----------------------------|-------------|--------------------------------|
 | `POST`   | `/auth/oauth_login`        | —           | Вход / регистрация через OAuth |
 | `POST`   | `/auth/refresh`            | —           | Обновление пары токенов        |
 | `GET`    | `/auth/subscription_plans` | —           | Справочник тарифных планов     |
 | `GET`    | `/auth/profile`            | 🔒 Bearer   | Получение профиля              |
-| `PATCH`  | `/auth/profile`       | 🔒 Bearer   | Обновление профиля             |
-| `GET`    | `/auth/sessions`      | 🔒 Bearer   | Список активных сессий         |
-| `DELETE` | `/auth/sessions/{id}` | 🔒 Bearer   | Отзыв конкретной сессии        |
-| `POST`   | `/auth/logout`        | 🔒 Bearer   | Выход (текущая сессия)         |
-| `POST`   | `/auth/logout_all`    | 🔒 Bearer   | Выход (все сессии)             |
+| `PATCH`  | `/auth/profile`            | 🔒 Bearer   | Обновление профиля             |
+| `GET`    | `/auth/sessions`           | 🔒 Bearer   | Список активных сессий         |
+| `DELETE` | `/auth/sessions/{id}`      | 🔒 Bearer   | Отзыв конкретной сессии        |
+| `POST`   | `/auth/logout`             | 🔒 Bearer   | Выход (текущая сессия)         |
+| `POST`   | `/auth/logout_all`         | 🔒 Bearer   | Выход (все сессии)             |

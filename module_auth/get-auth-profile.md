@@ -2,18 +2,18 @@
 
 ### <span style="background:#7CB342;padding:5px">GET</span> `/auth/profile`
 
-|                | Описание                                                                              |
-|----------------|---------------------------------------------------------------------------------------|
-| **Назначение** | Получение профиля текущего пользователя                                               |
-| **Логика**     | 1. Валидирует access_token в заголовке `Authorization`.                               |
-|                | 2. Извлекает `subscription` и `roles` прямо из access token — без запроса в Postgres. |
-|                | 3. Запрашивает базовые данные пользователя из таблицы `users`.                        |
-|                | 4. Получает список связанных OAuth-провайдеров (`oauth_accounts`).                    |
-|                | 5. Загружает текущий тарифный план из `subscription_plans` по `users.subscription`.   |
-|                | 6. Определяет следующий тариф по стоимости (+1 уровень апгрейда по `price_rub`).      |
-|                | 7. Добавляет billing-поля: `subscription_ends_at`, `cooling_until`, `is_cooling`,     |
-|                | &nbsp;&nbsp;&nbsp;`cooling_enforced` (см. [module_payment](../module_payment.md)).    |
-|                | 8. Возвращает профиль, текущий план и `upgrade_plan` (`null` на максимальном тарифе). |
+|                | Описание                                                                                              |
+|----------------|-------------------------------------------------------------------------------------------------------|
+| **Назначение** | Получение профиля текущего пользователя                                                               |
+| **Логика**     | 1. Валидирует access_token в заголовке `Authorization`.                                               |
+|                | 2. Извлекает `subscription` и `roles` прямо из access token — без запроса в Postgres.                 |
+|                | 3. Запрашивает базовые данные пользователя из таблицы `users`.                                        |
+|                | 4. Получает список связанных OAuth-провайдеров (`oauth_accounts`).                                    |
+|                | 5. Загружает текущий тарифный план из `subscription_plans` по `users.subscription`.                   |
+|                | 6. Определяет следующий тариф по стоимости (+1 уровень апгрейда по `price_rub`).                      |
+|                | 7. Добавляет billing-поля: `subscription_ends_at`, `cooling_until`, `is_cooling`,                     |
+|                | &nbsp;&nbsp;&nbsp;`cooling_enforced` (см. [module_payment](../../privat_http_api/module_payment.md)). |
+|                | 8. Возвращает профиль, текущий план и `upgrade_plan` (`null` на максимальном тарифе).                 |
 
 ---
 
@@ -74,6 +74,6 @@
 
 > В cooling `subscription` уже `FREE`, но `is_cooling=true` — UI показывает
 > баннер и не обещает платные лимиты. См.
-> [module_payment](../module_payment.md#срок-подписки-и-cooling).
+> [module_payment](../../privat_http_api/module_payment.md#срок-подписки-и-cooling).
 </details>
 
