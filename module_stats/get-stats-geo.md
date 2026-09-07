@@ -27,7 +27,9 @@
 | **Кеш**        | `stats:geo:{hash}`, TTL как у breakdown                                     |
 
 Ключ региона — `{CC}-{SUB}` из GeoLite2 `subdivision_1_iso_code` (см. enrichment /
-`import_geolite2.sh`).
+`import_geolite2.sh`). В ответе `items[].key` — этот машинный код (для choropleth);
+`items[].label` — **полное** человекочитаемое название на русском (не ISO-аббревиатура
+и не IP).
 
 ---
 
@@ -70,15 +72,45 @@ Authorization: Bearer <access_token>
   "items": [
     {
       "key": "RU-NIZ",
-      "label": "RU-NIZ",
+      "label": "Нижегородская область",
       "value": 320,
       "share": 0.27
     },
     {
       "key": "RU-MOW",
-      "label": "RU-MOW",
+      "label": "Москва",
       "value": 210,
       "share": 0.18
+    }
+  ],
+  "cells": null
+}
+```
+
+#### Пример ответа (countries)
+
+```json
+{
+  "mode": "countries",
+  "metric": "clicks",
+  "coverage": "raw",
+  "total": {
+    "clicks": 900,
+    "bots": 12,
+    "unknown": 0
+  },
+  "items": [
+    {
+      "key": "RU",
+      "label": "Россия",
+      "value": 640,
+      "share": 0.71
+    },
+    {
+      "key": "KZ",
+      "label": "Казахстан",
+      "value": 120,
+      "share": 0.13
     }
   ],
   "cells": null
