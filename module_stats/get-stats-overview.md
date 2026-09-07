@@ -20,7 +20,8 @@
 |                | 3. Считает окно по `window` preset (`24h` / `7d` / `30d`)                                                                                                     |
 |                | 4. Если окно внутри `stats_click_retention_days` → raw; иначе / частично → agg                                                                                |
 |                | 5. Собирает виджеты; при `mixed`/`agg` дни без raw — из `stats_by_day` (rolling 30d) |
-|                | 6. Для scope/folder — `top_shorts` (raw + `stats_by_day` в окне) |
+|                | 6. `series.granularity`: **`hour`** для `window=24h` при `coverage=raw`, иначе `day` |
+|                | 7. Для scope/folder — `top_shorts` (raw + `stats_by_day` в окне) |
 | **Параметры**  | `scope_id:int` — path                                                                                                                                         |
 |                | `window:str?` — `24h` \| `7d` \| `30d` (default `7d`)                                                                                                         |
 |                | `folder_id:uuid?` — entity = папка (поддерево)                                                                                                                |
@@ -208,7 +209,7 @@ Authorization: Bearer <access_token>
 | `kpis.clicks`, `bots`, `spend` | ✅ в preset-окне | ✅ **то же** — raw + `stats_by_day` |
 | `kpis.avg_ttfb_ms` | ✅ из raw | ✅ из `sum_ttfb_ms` / `ttfb_samples` в `stats_by_day` (+ raw при `mixed`) |
 | `kpis.failed_password`, `failed_captcha` | ✅ **lifetime** из `link_short_agg` (gate не в day-maps) | ✅ **то же** |
-| `series.points` (clicks, bots, spend) | ✅ по дням окна | ✅ **то же** — `stats_by_day` для дней без raw |
+| `series.points` (clicks, bots, spend) | ✅ `24h` → **по часам** (`granularity=hour`); `7d`/`30d` → по дням | ✅ по дням окна из `stats_by_day` (`granularity=day`; hour недоступен) |
 | `breakdowns` device / os / country / browser / status_code | ✅ в окне | ✅ **то же** — rollup `stats_by_day` |
 | `breakdowns.city` | ✅ при `window` ≤ 7d | ✅ при `window` ≤ 7d |
 | `breakdowns.utm_source`, `target` (+ spend) | ✅ в окне | ✅ **то же** |
