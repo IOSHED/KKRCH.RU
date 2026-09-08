@@ -1,11 +1,12 @@
 # Notification Module
 
-Модуль **in-app inbox**, preferences и admin campaigns.
+Единая система уведомлений: **in-app inbox**, **browser** (клиентский
+Notification API по inbox) и **email** (канал доставки через
+[`mail_worker`](../mail_worker.md)).
 
 Тикеты / жалобы / admin bot — в [`module_support`](module_support.md).
-Ответ оператора создаёт `user_notifications` с `kind=support_reply`.
-
-> **Статус:** реализовано (inbox, preferences, polling ≥15 с, campaigns).
+Ответ оператора создаёт `user_notifications` (`kind=support_reply`) и при
+включённом email — отложенную задачу в Redis.
 
 ---
 
@@ -16,7 +17,8 @@
 | 🎯 | Use cases | [ссылка](#use-cases) |
 | 🗄️ | Модель данных | [ссылка](#модель-данных) |
 | 🔔 | Каналы | [ссылка](#каналы) |
-| ⚡ | Polling | [ссылка](#polling) |
+| ⚡ | Polling / browser | [ссылка](#polling--browser) |
+| 📧 | Email (отложенные и lifecycle) | [ссылка](#email-отложенные-и-lifecycle) |
 | 📋 | Эндпоинты | [ссылка](#сводная-таблица-эндпоинтов) |
 
 Endpoint-файлы: [`module_notification/`](module_notification/).
@@ -25,11 +27,13 @@ Endpoint-файлы: [`module_notification/`](module_notification/).
 
 ## Use cases
 
-| Сценарий | Кто | Как |
-|----------|-----|-----|
-| Ответ поддержки в UI | User | inbox + polling ≥15 с |
-| Анонс релиза / promo | Admin | `POST /support/admin/notifications` (campaign) |
-| Opt-out promo | User | `PATCH /notifications/preferences` |
+| Сценарий | In-app | Browser | Email |
+|----------|--------|---------|-------|
+| Ответ поддержки | сразу (если `in_app_support`) | сразу при появлении в inbox (если `browser_support`) | через `support_reply_email_delay`, если не прочитано / тикет не закрыт пользователем и всё ещё `awaiting_user` |
+| Анонс / promo | campaign fan-out | как inbox | нет (только in-app opt-in) |
+| Скоро кончится подписка | `subscription_ending` | как inbox | если `email_billing` |
+| Скоро кончится cooling | `cooling_ending` | как inbox | если `email_billing` |
+| Дайджест кликов 7d (churn) | нет | нет | если `email_digest`, не заходил ≥ `digest_inactive_after`, кликов за период **> 5** |
 
 ---
 
@@ -39,68 +43,77 @@ Endpoint-файлы: [`module_notification/`](module_notification/).
 notification_campaigns  →  job fan-out (batch)
 user_notifications      →  inbox (короткий TTL)
 notification_preferences →  1 row / user
+users.last_seen_at       →  активность для digest
 ```
 
-**Без** таблицы `notification_deliveries` в v1 (email later — отдельная
-миграция).
+Email-доставки **не** пишутся в отдельную PG-таблицу: очередь Redis
+(`mail:queue` / `mail:delayed`) + идемпотентность `SET NX EX`.
 
 | `notification_preferences` | default |
 |----------------------------|---------|
 | `in_app_support` | true |
 | `in_app_release` | true |
 | `in_app_promo` | **false** (opt-in) |
-| `email_support` | false (future) |
+| `in_app_billing` | true |
+| `browser_support` | true |
+| `email_support` | **true** |
+| `email_billing` | true |
+| `email_digest` | true |
 
 | `user_notifications` retention | **30 дней** или после `is_read` + 7 дней → DELETE |
 
-| `notification_campaigns` | |
-|--------------------------|--|
-| `kind` | `support_reply` не в campaigns — только точечные inbox |
-| `title`, `body`, `payload` | |
-| `audience` | `all`, `paid`, `subscription_in` |
-| `status` | `queued` → `sending` → `sent` |
-| `cursor_user_id` | прогресс fan-out |
-| `created_at` | |
+| `notification_kind` | |
+|---------------------|--|
+| `support_reply` | ответ поддержки |
+| `release` / `promo` / `custom` | campaigns |
+| `system` | служебные |
+| `subscription_ending` | предупреждение об окончании подписки |
+| `cooling_ending` | предупреждение об окончании cooling |
+| `stats_digest` | только для email-задач (inbox не создаётся) |
 
-Fan-out: батчи по **500** user_id, без длинной транзакции; идемпотентность —
-частичный UNIQUE `(campaign_id, user_id) WHERE campaign_id IS NOT NULL`
-(не `NULLS NOT DISTINCT`: иначе `support_reply` с `campaign_id IS NULL`
-блокировал бы все ответы кроме первого).
-
-Точечный `support_reply` из `admin_reply` — обычный `INSERT` без
-`ON CONFLICT` (каждый ответ оператора → отдельная строка inbox).
-
-Promo-рассылки — только при `in_app_promo=true` (opt-in). Отзыв:
-`PATCH /notifications/preferences`.
+Fan-out campaigns: батчи по **500** user_id; UNIQUE `(campaign_id, user_id)
+WHERE campaign_id IS NOT NULL`. Точечный `support_reply` — plain `INSERT`.
 
 ---
 
 ## Каналы
 
-| Канал | v1 |
-|--------|-----|
-| In-app inbox | да |
-| Polling | да (**≥15 с**) |
-| SSE | нет |
-| Telegram user | нет |
-| Email user | нет |
-| Telegram admin | да — в [Support Bot](../support_bot.md) (текст + фото тикета) |
-
-`POST /support/admin/notifications` → campaign job.
+| Канал | Поведение |
+|--------|-----------|
+| In-app inbox | `user_notifications` + polling ≥15 с |
+| Browser | клиент: `Notification` API при новых unread и `browser_support`; Web Push (закрытая вкладка) — не в этом релизе |
+| Email | SMTP Timeweb (`info@…`) через `mail-worker` |
+| Telegram admin | [Support Bot](../support_bot.md) |
 
 Prefs: `GET/PATCH /notifications/preferences`.
 
 ---
 
-## Polling
+## Polling / browser
 
-1. Admin reply (`POST /support/admin/tickets/{id}/messages`, `is_internal=false`)
-   → при `in_app_support` создаётся `user_notifications` (`kind=support_reply`,
-   `payload.ticket_id`). Internal note уведомление **не** создаёт.
-2. Клиент: `GET /notifications` с интервалом **≥ 15 с** (панель открыта и фон).
-   Параметр `?since=` опционален.
+1. Admin reply (`is_internal=false`) → при `in_app_support` — строка inbox
+   (`kind=support_reply`, `payload.ticket_id`).
+2. Клиент: `GET /notifications` ≥ **15 с**.
+3. При росте unread и разрешении браузера + `browser_support` — системное
+   уведомление ОС (без отдельного backend push).
 
-SSE / stream-ticket в v1 **не** поддерживаются.
+SSE / stream-ticket **не** поддерживаются.
+
+---
+
+## Email (отложенные и lifecycle)
+
+| Событие | Когда ставится в очередь | Условие отправки |
+|---------|--------------------------|------------------|
+| Support reply | сразу после admin reply (`ZADD mail:delayed`, delay из конфига) | `email_support`; inbox `!is_read`; тикет `awaiting_user` и не закрыт |
+| Subscription ending | schedule в `mail-worker` | `ends_at` в окне warn; `email_billing` / `in_app_billing` |
+| Cooling ending | schedule в `mail-worker` | `cooling_until` в окне warn |
+| Stats digest | schedule | `last_seen_at` старше порога; есть клики за 7d; `email_digest` |
+
+Локально: `mail.override_to` перенаправляет все письма на тестовый адрес;
+`mail-worker --send-test` шлёт одно тестовое письмо.
+
+Детали очереди, SMTP и метрик — [`mail_worker.md`](../mail_worker.md).
 
 ---
 
@@ -110,5 +123,5 @@ SSE / stream-ticket в v1 **не** поддерживаются.
 |-------|------|------|----------|
 | `GET` | `/notifications` | 🔒 | Inbox |
 | `PATCH` | `/notifications/{id}/read` | 🔒 | Read |
-| `GET`/`PATCH` | `/notifications/preferences` | 🔒 | Prefs / opt-out promo |
+| `GET`/`PATCH` | `/notifications/preferences` | 🔒 | Prefs / каналы |
 | `POST` | `/support/admin/notifications` | service | Campaign |
