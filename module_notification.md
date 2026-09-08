@@ -110,7 +110,7 @@ SSE / stream-ticket **не** поддерживаются.
 | Cooling ending | schedule в `mail-worker` | `cooling_until` в окне warn |
 | Stats digest | schedule | `last_seen_at` старше порога; есть клики за 7d; `email_digest` |
 
-Локально: `mail.override_to` перенаправляет все письма на тестовый адрес;
+Локально: `mail.file.override_to` перенаправляет все письма на тестовый адрес;
 `mail-worker --send-test` шлёт одно тестовое письмо.
 
 Детали очереди, SMTP и метрик — [`mail_worker.md`](../mail_worker.md).
