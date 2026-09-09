@@ -6,8 +6,9 @@
 |----------------|-------------------------------------------------------------------------------|
 | **Назначение** | Админская очередь тикетов, отсортированная по приоритету подписки             |
 | **Логика**     | 1. Роль `admin` или service token бота.                                       |
-|                | 2. `ORDER BY priority_score DESC, created_at ASC`.                            |
-|                | 3. Фильтры status / subscription.                                             |
+|                | 2. Опц. глобальный retention-sweep (Redis throttle).                          |
+|                | 3. `ORDER BY priority_score DESC, created_at ASC`.                            |
+|                | 4. Фильтры status / subscription.                                             |
 
 ---
 

@@ -60,7 +60,7 @@ Email-доставки **не** пишутся в отдельную PG-табл
 | `email_billing` | true |
 | `email_digest` | true |
 
-| `user_notifications` retention | **30 дней** или после `is_read` + 7 дней → DELETE |
+| `user_notifications` retention | **14 дней** (`support.notification_retention`) → DELETE на `GET /notifications` + глобальный sweep |
 
 | `notification_kind` | |
 |---------------------|--|

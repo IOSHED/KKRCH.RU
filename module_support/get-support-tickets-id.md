@@ -6,8 +6,9 @@
 |----------------|------------------------------------------------------------------|
 | **Назначение** | Карточка тикета + лента сообщений + метаданные вложений          |
 | **Логика**     | 1. Ownership assert (свой тикет) или admin.                      |
-|                | 2. Возвращает messages ASC (`is_internal=false` для user).           |
-|                | 3. Admin/service видит и internal notes.                             |
+|                | 2. Closed старше `closed_ticket_retention` → hard-delete + 404.  |
+|                | 3. Messages ASC (`is_internal=false` для user).                  |
+|                | 4. Admin/service видит и internal notes.                         |
 
 ---
 

@@ -203,7 +203,7 @@ at, action, entity_type, entity_id, meta jsonb
 |---------|----------------|
 | Законность / цель | Цели: обработка обращений; модерация запрещённого контента; продуктовые уведомления (отдельное согласие на promo) |
 | Минимизация | Не слать в TG **лишнее**: email пользователя и сырой IP — по запросу `/email`; в push сразу — текст обращения и фото (нужны для разбора) |
-| Срок хранения | Явные TTL + sweeper (см. ниже) |
+| Срок хранения | Явные TTL + lazy cleanup на HTTP (см. [Retention](#retention-уничтожение--обезличивание)) |
 | Точность | User может править профиль; тикеты — append-only messages |
 | Локализация (ст. 18 ч. 5) | **Первичная** БД и object storage в РФ. Telegram получает копии текста/фото для оператора (трансграничная передача) — зафиксировать в политике конфиденциальности |
 
@@ -239,19 +239,28 @@ at, action, entity_type, entity_id, meta jsonb
 
 ### Retention (уничтожение / обезличивание)
 
-| Данные | TTL |
-|--------|-----|
-| Closed ticket + messages | **180 дней** после `closed_at` → hard delete |
-| Soft-deleted ticket | **30 дней** → hard delete |
-| Attachments | вместе с message; orphan GC ежедневно |
-| `support_reports` reviewed | **90 дней** после review |
-| `support_reports` open | **180 дней** с create |
-| `user_notifications` | **30 дней** |
-| `client_ip` plaintext | **7 дней** → заменить hash |
-| `support_audit_log` | **365 дней** |
-| Magic-link token | **14 дней** |
+Lazy cleanup **без отдельного воркера**: на user/admin GET (и guest POST report)
+ответ строится сразу с фильтром «ещё не удалённых по TTL» строк; hard-delete /
+глобальный sweep идут в `tokio::spawn` и **не блокируют** HTTP.
 
-Sweeper: тот же процесс, что stats retention (или cron в http-api), batch DELETE.
+Глобальный sweep троттлится Redis `SET NX EX` = `retention_min_interval`
+(чтобы параллельные запросы не запускали десятки одинаковых DELETE).
+
+| Данные | TTL (конфиг) | Ответ / очистка |
+|--------|--------------|-----------------|
+| Closed ticket + messages + PG attachments | `closed_ticket_retention` (**7d** после `closed_at`) | фильтр в `GET /support/tickets` (+ 404 на `GET …/{id}`); DELETE фоном |
+| Soft-deleted ticket | `soft_deleted_ticket_retention` (**7d** после `deleted_at`) | уже скрыт `deleted_at IS NULL`; DELETE фоном |
+| Object storage вложения | вместе с hard-delete тикета; ILM bucket — страховка | `AttachmentStore::delete` в фоновой задаче (dedup) |
+| `support_reports` reviewed | `report_reviewed_retention` (**30d** после `reviewed_at`) | глобальный sweep фоном |
+| `support_reports` open | `report_open_retention` (**60d** с `created_at`) | глобальный sweep фоном |
+| `user_notifications` | `notification_retention` (**14d**) | фильтр в `GET /notifications`; DELETE фоном |
+| `client_ip` plaintext | `client_ip_plaintext_ttl` (**7d**) → hash + NULL | глобальный sweep фоном |
+| `support_audit_log` | `audit_log_retention` (**90d**) | глобальный sweep фоном |
+| Magic-link token | `magic_link_ttl` (**7d**) | фильтр в `GET /support/reports/by-token` |
+
+Триггеры spawn: `GET /support/tickets`, `GET /support/tickets/{id}` (если expired),
+`GET /support/admin/tickets`, `GET /notifications`, `POST /support/reports`.
+Пачка = `retention_batch_size`.
 
 ### Иные меры
 
