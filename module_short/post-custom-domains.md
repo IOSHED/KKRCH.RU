@@ -32,8 +32,8 @@
 | permission_denied_error        | 403 | Недостаточно прав у API key                                       |
 | api_key_scope_mismatch_error   | 403 | API key привязан к другому scope                                  |
 | custom_domain_not_payed_error  | 402 | Лимит custom domains по подписке                                  |
-| scope_not_found_error          | 404 | Scope не найден / нет доступа                                     |
-| conflict_error                 | 409 | Домен уже активен у другого аккаунта                              |
+| scope_not_found          | 404 | Scope не найден / нет доступа                                     |
+| domain_taken                 | 409 | Домен уже активен у другого аккаунта                              |
 | server_error                   | 500 | Внутренняя ошибка сервера                                         |
 
 ---

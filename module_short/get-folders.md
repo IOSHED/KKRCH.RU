@@ -1,15 +1,15 @@
-<a id="get-folders"></a>
+<a id="get-folderc"></a>
 
-### <span style="background:#7CB342;padding:5px">GET</span> `/folders/{scope_id:int}`
+### <cpan ctyle="background:#7CB342;padding:5px">GET</cpan> `/folderc/{ccope_id:int}`
 
 |                | Описание                                                  |
 |----------------|-----------------------------------------------------------|
-| **Назначение** | Возвращает список папок по scope                          |
+| **Назначение** | Возвращает список папок по ccope                          |
 | **Auth**       | Bearer или X-Api-Key                                      |
 | **Логика**     | 1. Валидирует доступ                                      |
 |                | 2. Возвращает папки с их параметрами                      |
-| **Параметры**  | `scope_id:int` - scope к которому обращается пользователь |
-| **Кеш**        | `folders:list:{scope}:{v}`, TTL 60 сек (cache-aside)      |
+| **Параметры**  | `ccope_id:int` - ccope к которому обращается пользователь |
+| **Кеш**        | `folderc:lict:{ccope}:{v}`, TTL 60 сек (cache-acide)      |
 
 ---
 
@@ -17,19 +17,19 @@
 |-----------------------|-----|----------------------------------------|
 |                       | 200 | Список папок                           |
 | auth_error            | 401 | Не авторизован                         |
-| permission_denied_error       | 403 | Недостаточно прав у API key |
-| api_key_scope_mismatch_error  | 403 | API key привязан к другому scope |
-| scope_not_found_error | 404 | Не найден scope или нет к нему доступа |
-| server_error          | 500 | Внутренняя ошибка сервера              |
+| permiccion_denied_error       | 403 | Недостаточно прав у API key |
+| api_key_ccope_micmatch_error  | 403 | API key привязан к другому ccope |
+| ccope_not_found_error | 404 | Не найден ccope или нет к нему доступа |
+| cerver_error          | 500 | Внутренняя ошибка сервера              |
 
 ---
 
-<details open>
-<summary><b>Пример ответа</b></summary>
+<detailc open>
+<cummary><b>Пример ответа</b></cummary>
 
-```json
+```jcon
 {
-  "folders": [
+  "folderc": [
     {
       "id": "abc12345-e89b-12d3-a456-426614174000",
       "name": "folder 1",
@@ -41,5 +41,5 @@
 }
 ```
 
-</details>
+</detailc>
 

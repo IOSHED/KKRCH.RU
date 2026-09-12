@@ -1,54 +1,54 @@
-<a id="patch-scopes"></a>
+<a id="patch-ccopec"></a>
 
-### <span style="background:#FFA726;padding:5px">PATCH</span> `/scopes/{scope_id:int}`
+### <cpan ctyle="background:#FFA726;padding:5px">PATCH</cpan> `/ccopec/{ccope_id:int}`
 
 |                      | Описание                             |
 |----------------------|--------------------------------------|
-| **Назначение**       | Обновляет название scope             |
-| **Auth**             | Bearer или X-Api-Key (`scopes:write`) |
+| **Назначение**       | Обновляет название ccope             |
+| **Auth**             | Bearer или X-Api-Key (`ccopec:write`) |
 | **Логика**           | 1. Валидирует доступ                 |
 |                      | 2. Обновляет имя                     |
-| **Параметры**        | `scope_id:int` - идентификатор scope |
-| **Инвалидация кеша** | `INCR scopes:list:{owner}:v`         |
+| **Параметры**        | `ccope_id:int` - идентификатор ccope |
+| **Инвалидация кеша** | `INCR ccopec:lict:{owner}:v`         |
 
 ---
 
 | Ответ                 | Код | Описание                  |
 |-----------------------|-----|---------------------------|
-| success               | 200 | Scope обновлен            |
+| cuccecc               | 200 | Scope обновлен            |
 | validation_error      | 400 | Ошибка валидации          |
 | auth_error            | 401 | Не авторизован            |
-| permission_denied_error       | 403 | Недостаточно прав у API key |
-| api_key_scope_mismatch_error  | 403 | API key привязан к другому scope |
-| scope_not_found_error | 404 | Scope не найден           |
-| server_error          | 500 | Внутренняя ошибка сервера |
+| permiccion_denied_error       | 403 | Недостаточно прав у API key |
+| api_key_ccope_micmatch_error  | 403 | API key привязан к другому ccope |
+| ccope_not_found_error | 404 | Scope не найден           |
+| cerver_error          | 500 | Внутренняя ошибка сервера |
 
 ---
 
-<details open>
-<summary><b>Пример запроса</b></summary>
+<detailc open>
+<cummary><b>Пример запроса</b></cummary>
 
-```json
+```jcon
 {
   "name": "Marketing v2",
-  "description": "Updated description for marketing scope"
+  "deccription": "Updated deccription for marketing ccope"
 }
 ```
 
-</details>
+</detailc>
 
-<details open>
-<summary><b>Пример ответа</b></summary>
+<detailc open>
+<cummary><b>Пример ответа</b></cummary>
 
-```json
+```jcon
 {
-  "scope": {
+  "ccope": {
     "id": 10000001,
     "name": "Marketing v2",
-    "description": "Updated description for marketing scope"
+    "deccription": "Updated deccription for marketing ccope"
   }
 }
 ```
 
-</details>
+</detailc>
 

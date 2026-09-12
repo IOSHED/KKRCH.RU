@@ -190,7 +190,7 @@ Routing-probe: для FQDN с ≥3 labels — CNAME на сам `{domain}`; дл
 
 `short.reserved_subdomains` (по умолчанию `www`) **и** первый label
 `routing_cname_target` (по умолчанию `edge`) **зарезервированы** —
-`POST /subdomains` с таким именем → `400 subdomain_validation_error`.
+`POST /subdomains` с таким именем → `400 subdomain_validation`.
 `www.{base}` на redirect уже трактуется как apex без subdomain.
 
 ### Интеграция с короткими ссылками
@@ -754,7 +754,7 @@ Base58-подобный (58 символов). Исключены визуаль
 
 ```json
 {
-  "kind": "short_name_exhausted_error",
+  "kind": "suffix_space_exhausted",
   "reason": "..."
 }
 ```

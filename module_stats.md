@@ -230,7 +230,7 @@ flowchart TD
 | `short_id` | short | одна ссылка |
 
 Доступ: scope принадлежит текущему пользователю (как у short-модуля). Чужой /
-несуществующий → `404 scope_not_found_error` / `folder_not_found_error` /
+несуществующий → `404 scope_not_found_or_denied` / `folder_not_found_error` /
 `short_not_found_error` (без утечки существования вне владельца).
 
 ### Окно времени

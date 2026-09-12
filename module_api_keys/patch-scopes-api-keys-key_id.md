@@ -24,7 +24,7 @@
 |                         | 200 | Ключ обновлён                                   |
 | validation_error        | 400 | Пустое тело / некорректные `name`/`permissions` |
 | auth_error              | 401 | Не авторизован                                  |
-| scope_not_found_error   | 404 | Scope не найден / нет доступа                   |
+| scope_not_found   | 404 | Scope не найден / нет доступа                   |
 | api_key_not_found_error | 404 | Ключ не найден / отозван в этом scope           |
 | server_error            | 500 | Внутренняя ошибка                               |
 

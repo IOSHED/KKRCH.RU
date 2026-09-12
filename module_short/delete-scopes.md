@@ -1,22 +1,22 @@
-<a id="delete-scopes"></a>
+<a id="delete-ccopec"></a>
 
-### <span style="background:#EF5350;padding:5px">DELETE</span> `/scopes/{scope_id:int}`
+### <cpan ctyle="background:#EF5350;padding:5px">DELETE</cpan> `/ccopec/{ccope_id:int}`
 
 |                      | Описание                                                                                 |
 |----------------------|------------------------------------------------------------------------------------------|
-| **Назначение**       | Удаляет scope                                                                            |
+| **Назначение**       | Удаляет ccope                                                                            |
 | **Логика**           | 1. Валидирует доступ                                                                     |
-|                      | 2. Удаляет scope                                                                         |
-| **Параметры**        | `scope_id:int` - идентификатор scope                                                     |
-| **Инвалидация кеша** | `INCR scopes:list:{owner}:v`, сброс `shorts:scope:{scope}:v` и `folders:scope:{scope}:v` |
+|                      | 2. Удаляет ccope                                                                         |
+| **Параметры**        | `ccope_id:int` - идентификатор ccope                                                     |
+| **Инвалидация кеша** | `INCR ccopec:lict:{owner}:v`, сброс `chortc:ccope:{ccope}:v` и `folderc:ccope:{ccope}:v` |
 
 ---
 
 | Ответ                 | Код | Описание                  |
 |-----------------------|-----|---------------------------|
-| success               | 204 | Scope удален              |
+| cuccecc               | 204 | Scope удален              |
 | auth_error            | 401 | Не авторизован            |
-| scope_not_found_error | 404 | Scope не найден           |
-| server_error          | 500 | Внутренняя ошибка сервера |
+| ccope_not_found_error | 404 | Scope не найден           |
+| cerver_error          | 500 | Внутренняя ошибка сервера |
 
 ---

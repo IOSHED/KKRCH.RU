@@ -22,13 +22,13 @@
 |-----------------------------|-----|--------------------------------------------------|
 |                             | 200 | Результат проверки доступности                   |
 | short_name_validation_error | 400 | Ошибка валидации шаблона для short_name          |
-| subdomain_validation_error  | 400 | Ошибка валидации шаблона для subdomain           |
+| subdomain_template_validation  | 400 | Ошибка валидации шаблона для subdomain           |
 | validation_error            | 400 | Ошибка валидации                                 |
 | auth_error                  | 401 | Не авторизован                                   |
 | permission_denied_error       | 403 | Недостаточно прав у API key |
 | api_key_scope_mismatch_error  | 403 | API key привязан к другому scope |
 | subdomain_not_found_error   | 404 | Не найден subdomain                              |
-| conflict_error              | 409 | Уже существует такая пара subdomain + short_name |
+| host_short_name_conflict              | 409 | Уже существует такая пара subdomain + short_name |
 | server_error                | 500 | Внутренняя ошибка сервера                        |
 
 ---

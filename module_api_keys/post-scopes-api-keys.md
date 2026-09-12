@@ -22,7 +22,7 @@
 | validation_error        | 400 | Некорректные `name` / `permissions`                            |
 | auth_error              | 401 | Не авторизован                                                 |
 | api_key_not_payed_error | 402 | Запрошены n-ный API ключ без его имения (ограничены подпиской) |
-| scope_not_found_error   | 404 | Scope не найден / не принадлежит пользователю                  |
+| scope_not_found   | 404 | Scope не найден / не принадлежит пользователю                  |
 | server_error            | 500 | Внутренняя ошибка                                              |
 
 ---

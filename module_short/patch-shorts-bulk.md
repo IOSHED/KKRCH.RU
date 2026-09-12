@@ -39,9 +39,9 @@
 | auth_error                   | 401 | Не авторизован                                                                                       |
 | permission_denied_error      | 403 | Недостаточно прав у API key                                                                          |
 | api_key_scope_mismatch_error | 403 | API key привязан к другому scope                                                                     |
-| subdomain_not_payed_error    | 402 | Запрошены премиум subdomain для ссылки без его имения                                                |
-| short_name_not_payed_error   | 402 | Превышен лимит коротких ссылок по подписке                                                           |
-| scope_not_found_error        | 404 | Не найден scope или нет к нему доступа                                                               |
+| premium_subdomain_required    | 402 | Запрошены премиум subdomain для ссылки без его имения                                                |
+| shorts_limit_reached   | 402 | Превышен лимит коротких ссылок по подписке                                                           |
+| scope_not_found        | 404 | Не найден scope или нет к нему доступа                                                               |
 | subdomain_not_found_error    | 404 | Не найден subdomain                                                                                  |
 | short_name_conflict_error    | 409 | Уже существует короткая ссылка с таким short_name в рамках данного subdomain                         |
 | server_error                 | 500 | Внутренняя ошибка сервера                                                                            |

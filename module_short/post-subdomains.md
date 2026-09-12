@@ -27,13 +27,13 @@
 | Ответ                     | Код | Описание                                                                |
 |---------------------------|-----|-------------------------------------------------------------------------|
 | success                   | 201 | Subdomain создан                                                        |
-| subdomain_validation_error | 400 | Невалидное имя / зарезервировано (`www`, `edge`, …)                   |
+| subdomain_validation | 400 | Невалидное имя / зарезервировано (`www`, `edge`, …)                   |
 | validation_error          | 400 | Ошибка валидации                                                        |
 | auth_error                | 401 | Не авторизован                                                          |
 | permission_denied_error       | 403 | Недостаточно прав у API key |
 | api_key_scope_mismatch_error  | 403 | API key привязан к другому scope |
-| subdomain_not_payed_error | 402 | Запрошены n-ный премиум subdomain без его имения (ограничены подпиской) |
-| conflict_error            | 409 | Subdomain уже занят                                                     |
+| subdomains_limit_reached | 402 | Запрошены n-ный премиум subdomain без его имения (ограничены подпиской) |
+| subdomain_taken            | 409 | Subdomain уже занят                                                     |
 | server_error              | 500 | Внутренняя ошибка сервера                                               |
 
 ---

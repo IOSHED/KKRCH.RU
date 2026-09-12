@@ -43,11 +43,11 @@
 | auth_error                   | 401 | Не авторизован                                                                          |
 | permission_denied_error      | 403 | Недостаточно прав у API key                                                             |
 | api_key_scope_mismatch_error | 403 | API key привязан к другому scope                                                        |
-| short_name_not_payed_error   | 402 | Вы имеете уже максимум коротких ссылок для вашей подписки                               |
-| scope_not_found_error        | 404 | Не найден scope или нет к нему доступа                                                  |
+| shorts_limit_reached   | 402 | Вы имеете уже максимум коротких ссылок для вашей подписки                               |
+| scope_not_found        | 404 | Не найден scope или нет к нему доступа                                                  |
 | subdomain_not_found_error    | 404 | Не найден subdomain                                                                     |
 | short_name_conflict_error    | 409 | Уже существует короткая ссылка с таким short_name в рамках данного subdomain            |
-| short_name_exhausted_error   | 409 | Все возможные варианты short_name по шаблону уже заняты (для шаблонов с random_suffix)  |
+| suffix_space_exhausted   | 409 | Все возможные варианты short_name по шаблону уже заняты (для шаблонов с random_suffix)  |
 | server_error                 | 500 | Внутренняя ошибка сервера                                                               |
 
 ---
