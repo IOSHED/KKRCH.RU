@@ -471,6 +471,10 @@ resolve(platform, request) → Map<macro_name, Option<value>>
 | `vkontakte`       | `campaign_id`, `ad_id`, …                                                    | **кастомные заголовки VK** (см. ниже) — читать в первую очередь | `{name}`                 |
 | `vk_ads`          | `utm_*`, `campaign_id`/`banner_id` как `{{…}}`                               | **кастомные заголовки VK Ads** + generic `X-Macro-*`            | `{{name}}`               |
 | `my_target`       | `{{campaign_id}}`, `{{banner_id}}`, `{{geo}}`, …                             | кастомные заголовки myTarget при наличии                        | `{{name}}`               |
+| `meta_ads`        | Meta URL macros: `{{campaign.name}}`, `{{ad.name}}`, `{{adset.name}}`, …     | generic `X-Macro-*`                                             | `{{name}}`               |
+| `microsoft_ads`   | Bing: `{Campaign}`, `{AdId}`, `{Keyword}`, …; также `utm_*`                  | generic `X-Macro-*`                                             | `{name}`                 |
+| `tiktok_ads`      | TikTok: `__CAMPAIGN_NAME__`, `__CID_NAME__`, `__AID_NAME__`, …               | generic `X-Macro-*`                                             | `__NAME__`               |
+| `linkedin_ads`    | LinkedIn: `{{CAMPAIGN_NAME}}`, `{{CREATIVE_ID}}`, …                          | generic `X-Macro-*`                                             | `{{NAME}}`               |
 | `custom` / `null` | только generic: `utm_*` + `X-Macro-*` / `X-Utm-*`                            | generic                                                         | `{name}` и `{{name}}`    |
 
 **VK / VK Ads — кастомные заголовки.** Платформа (или промежуточный прокси)
@@ -495,13 +499,18 @@ Extractor `vkontakte` / `vk_ads` обязан читать известный н
 
 ### Пресеты `source` / `medium`
 
-| `platform`      | source      | medium | Типичные campaign/content/term                                     |
-|-----------------|-------------|--------|--------------------------------------------------------------------|
-| `google_ads`    | `google`    | `cpc`  | `{network}` / `{creative}` / `{keyword}`                           |
-| `yandex_direct` | `yandex`    | `cpc`  | `{campaign_id}` / `{ad_id}` / `{keyword}`                          |
-| `vkontakte`     | `vkontakte` | `cpc`  | `{campaign_id}` / `{ad_id}`                                        |
-| `vk_ads`        | `vk_ads`    | `cpc`  | `{{campaign_id}}` / `{{banner_id}}`                                |
-| `my_target`     | `mycom`     | `cpc`  | `{{campaign_id}}` / `{{banner_id}}` / `{{geo}}.{{gender}}.{{age}}` |
+| `platform`       | source     | medium  | Типичные campaign/content/term                                      |
+|------------------|------------|---------|---------------------------------------------------------------------|
+| `google_ads`     | `google`   | `cpc`   | `{campaignid}` / `{creative}` / `{keyword}`                         |
+| `yandex_direct`  | `yandex`   | `cpc`   | `{campaign_id}` / `{ad_id}` / `{keyword}`                           |
+| `vkontakte`      | `vk`       | `cpc`   | `{campaign_id}` / `{ad_id}`                                         |
+| `vk_ads`         | `vk`       | `cpc`   | `{campaign_id}` / `{ad_id}`                                         |
+| `my_target`      | `mytarget` | `cpc`   | `{campaign_id}` / `{banner_id}`                                     |
+| `meta_ads`       | `facebook` | `paid`  | `{{campaign.name}}` / `{{ad.name}}` / `{{adset.name}}`              |
+| `microsoft_ads`  | `bing`     | `cpc`   | `{Campaign}` / `{AdId}` / `{Keyword}`                               |
+| `tiktok_ads`     | `tiktok`   | `cpc`   | `__CAMPAIGN_NAME__` / `__CID_NAME__` / `__AID_NAME__`               |
+| `linkedin_ads`   | `linkedin` | `cpc`   | `{{CAMPAIGN_NAME}}` / `{{CREATIVE_ID}}`                             |
+| `custom`         | —          | —       | произвольные поля                                                   |
 
 ### Справочник макросов (кратко)
 
@@ -510,11 +519,16 @@ Extractor `vkontakte` / `vk_ads` обязан читать известный н
 - **Яндекс.Директ** `{…}`: `ad_id`/`banner_id`, `campaign_id`, `keyword`,
   `device_type`, `gbid`, `position`, `source`, `region_id`, …
 - **VK** `{…}`: `campaign_id`, `ad_id`, `platform`, `random`, …
-- **VK Ads / myTarget** `{{…}}`: `advertiser_id`, `ad_plan_id`, `campaign_id`,
+- **VK Ads / myTarget** `{{…}}` / `{…}`: `advertiser_id`, `ad_plan_id`, `campaign_id`,
   `banner_id`, `geo`, `gender`, `age`, `random`, `impression_hour`, …
-
-Полные таблицы — как у Tilda / справки платформ; в коде — константы рядом с
-extractor'ом платформы.
+- **Meta Ads** `{{…}}`: `campaign.name` / `campaign.id`, `adset.name` / `adset.id`,
+  `ad.name` / `ad.id`, `site_source_name`, …
+- **Microsoft Advertising** `{…}`: `Campaign` / `CampaignId`, `AdGroup` / `AdGroupId`,
+  `AdId`, `Keyword`, `Network`, …
+- **TikTok Ads** `__…__`: `CAMPAIGN_NAME` / `CAMPAIGN_ID`, `AID_NAME` / `AID`,
+  `CID_NAME` / `CID`, …
+- **LinkedIn Ads** `{{…}}`: `CAMPAIGN_NAME` / `CAMPAIGN_ID`, `CREATIVE_ID`,
+  `AD_SET_NAME`, …
 
 ### Статистика по UTM/платформе
 
