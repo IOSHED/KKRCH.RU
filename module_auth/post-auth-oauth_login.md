@@ -4,7 +4,7 @@
 
 |                | Описание                                                                      |
 |----------------|-------------------------------------------------------------------------------|
-| **Назначение** | Вход или регистрация через OAuth2-провайдера (Яндекс ID)                      |
+| **Назначение** | Вход или регистрация через OAuth2-провайдера (Яндекс ID, Google)      |
 | **Логика**     | 1. Сервер обменивает authorization code на access_token провайдера.           |
 |                | 2. Получает профиль пользователя у провайдера (email, name, id).              |
 |                | 3. Проверяет, есть ли `oauth_accounts` с такой связкой provider+id:           |
@@ -33,10 +33,12 @@
 ```json
 {
   "code": "4/0AQSTgQF...xyz",
-  "provider": "YANDEX",
-  "redirect_uri": "https://example.com/auth/callback"
+  "provider": "GOOGLE",
+  "redirect_uri": "https://example.com/home"
 }
 ```
+
+`provider`: `YANDEX` | `GOOGLE`.
 
 </details>
 

@@ -4,7 +4,9 @@
 Аутентификация реализована через OAuth2:
 
 - [Яндекс ID](https://oauth.yandex.ru/)
+- [Google](https://developers.google.com/identity/protocols/oauth2)
 - MAX (мессенджер) — в разработке
+- Microsoft — в разработке
 
 > **Дорожная карта (не v1):** для полного соответствия
 > [ФЗ-149](https://eais.rkn.gov.ru/docs/149.pdf) /
@@ -186,6 +188,10 @@ auth:
   user_agent: "..."   # User-Agent для OAuth-запросов
 
   yandex:
+    client_id: "..."
+    client_secret: "..."
+
+  google:
     client_id: "..."
     client_secret: "..."
 ```
