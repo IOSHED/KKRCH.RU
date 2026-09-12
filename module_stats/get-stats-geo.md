@@ -24,12 +24,14 @@
 |                | `resolution:float?` — только hex, градусы, default `0.5`, clamp `[0.05, 5]` |
 |                | `limit:int?` — default 200                                                  |
 |                | `from`/`to` или `window`; `folder_id` / `short_id`; фильтры UTM/device/…    |
-| **Кеш**        | `stats:geo:{hash}`, TTL как у breakdown                                     |
+| **Кеш**        | `stats:geo:{hash}` (в hash входит `Accept-Language`), TTL как у breakdown   |
+| **Заголовки**  | `Cache-Control: private`; `Vary: Accept-Language`                           |
 
 Ключ региона — `{CC}-{SUB}` из GeoLite2 `subdivision_1_iso_code` (см. enrichment /
 `import_geolite2.sh`). В ответе `items[].key` — этот машинный код (для choropleth);
-`items[].label` — **полное** человекочитаемое название на русском (не ISO-аббревиатура
-и не IP).
+`items[].label` — **полное** человекочитаемое название по `Accept-Language`
+(`ru` / `en` / `de` / `fr`; не ISO-аббревиатура и не IP).
+Городов в geo API нет — только страны / субъекты РФ / hex-ячейки.
 
 ---
 
