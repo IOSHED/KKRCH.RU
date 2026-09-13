@@ -737,16 +737,20 @@ Base58-подобный (58 символов). Исключены визуаль
 
 | Условие                          | Режим                               | Детали                                                                             |
 |----------------------------------|-------------------------------------|------------------------------------------------------------------------------------|
-| `N ≤ threshold` (по умолчанию 5) | **Sequential** (глобальный счётчик) | Атомарный UPSERT в `short_id_blocks`; ключ `(subdomain, prefix, N)` без `scope_id` |
+| `N ≤ threshold` | **Sequential (multi-lane)** | При первой генерации сидятся ~12 lane со случайными границами в `short_id_blocks`; каждая ссылка берёт случайный непереполненный lane (`+1`). Ключ `(subdomain, prefix, N, lane)` без `scope_id` |
 | `N > threshold` И есть поддомен  | **Random + reservation**            | CSPRNG → INSERT в `short_name_reservations`; до `random_max_retries` попыток       |
-| `subdomain = None` (любой N)     | **Sequential всегда**               | Глобальный namespace; random неприемлем при росте нагрузки                         |
+| `subdomain = None` и `N ≤ non_domain_sequential_threshold` | **Sequential (multi-lane)** | Тот же multi-lane алгоритм в глобальном namespace без поддомена |
 
-> Конфигурируется через `short.sequential_threshold`, `short.max_allowed_n`,
+> Конфигурируется через `short.sequential_threshold`, `short.non_domain_sequential_threshold`,
+> `short.sequential_lane_count`, `short.max_allowed_n`,
 > `short.random_max_retries`, `short.random_reservation_ttl` в `conf/base.yaml`.
+
+Исчерпанный lane (`next_id ≥ end_id`) больше не используется. Когда активных lane
+не осталось — авто-эскалация N (как при полном исчерпании `58^N`).
 
 ### Авто-эскалация N
 
-Если пространство `58^N` исчерпано (sequential counter ≥ max) или random-retry лимит
+Если все sequential-lane исчерпаны (`next_id ≥ end_id`) или random-retry лимит
 достигнут (случайные коллизии под нагрузкой), сервер **автоматически** увеличивает N на 1
 и повторяет генерацию — вплоть до `max_allowed_n` (по умолчанию 16).
 
