@@ -2,24 +2,24 @@
 
 ### <span style="background:#42A5F5;padding:5px">POST</span> `/support/reports`
 
-|                | Описание                                                                 |
-|----------------|--------------------------------------------------------------------------|
-| **Назначение** | Гостевая жалоба / фидбек без аккаунта (152-ФЗ: согласие обязательно)     |
-| **Логика**     | 1. Captcha + `consent=true` + `consent_text_version`.                    |
-|                | 2. Rate-limit IP/email. INSERT `support_reports`.                        |
-|                | 3. Magic-link token (hash в БД) → email «жалоба принята».                |
-|                | 4. Событие боту: id + kind + **subject/body** (текст в TG); без email.   |
-|                | 5. Вложения не принимаются.                                              |
+|                | Описание                                                                |
+|----------------|-------------------------------------------------------------------------|
+| **Назначение** | Гостевая жалоба / фидбек без аккаунта (152-ФЗ: согласие обязательно)    |
+| **Логика**     | 1. Captcha + `consent=true` + `consent_text_version`.                   |
+|                | 2. Rate-limit IP/email. INSERT `support_reports`.                       |
+|                | 3. Magic-link token (hash в БД) → email «жалоба принята».               |
+|                | 4. Событие боту: id + kind + **subject/body** (текст в MAX); без email. |
+|                | 5. Вложения не принимаются.                                             |
 
 ---
 
-| Kind                    | Код | Описание              |
-|-------------------------|-----|-----------------------|
-|                         | 201 | Принято               |
-| validation_error        | 400 | Поля / нет consent    |
-| captcha_required_error  | 400 | Captcha               |
-| too_many_requests_error | 429 | Rate limit            |
-| server_error            | 500 | Ошибка                |
+| Kind                    | Код | Описание           |
+|-------------------------|-----|--------------------|
+|                         | 201 | Принято            |
+| validation_error        | 400 | Поля / нет consent |
+| captcha_required_error  | 400 | Captcha            |
+| too_many_requests_error | 429 | Rate limit         |
+| server_error            | 500 | Ошибка             |
 
 ---
 

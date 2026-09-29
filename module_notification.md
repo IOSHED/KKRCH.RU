@@ -83,7 +83,7 @@ WHERE campaign_id IS NOT NULL`. Точечный `support_reply` — plain `INSE
 | In-app inbox | `user_notifications` + polling ≥15 с |
 | Browser | клиент: `Notification` API при новых unread и `browser_support`; Web Push (закрытая вкладка) — не в этом релизе |
 | Email | SMTP Timeweb (`info@…`) через `mail-worker` |
-| Telegram admin | [Support Bot](../support_bot.md) |
+| MAX admin | [Support Bot](../support_bot.md) |
 
 Prefs: `GET/PATCH /notifications/preferences`.
 
