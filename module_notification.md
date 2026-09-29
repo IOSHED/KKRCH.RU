@@ -125,3 +125,4 @@ SSE / stream-ticket **не** поддерживаются.
 | `PATCH` | `/notifications/{id}/read` | 🔒 | Read |
 | `GET`/`PATCH` | `/notifications/preferences` | 🔒 | Prefs / каналы |
 | `POST` | `/support/admin/notifications` | service | Campaign |
+| `POST` | `/support/admin/users/{id}/notifications` | service | Notify one user |
