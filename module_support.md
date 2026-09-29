@@ -45,7 +45,7 @@ Endpoint-файлы: [`module_support/`](module_support/).
 | Жалоба на phishing без аккаунта  | Гость           | `POST /support/reports` + consent          |
 | Уточнение / статус жалобы        | Гость           | magic-link на email                        |
 | Тикет зарегистрированного        | User            | `POST /support/tickets`                    |
-| Скриншоты                        | User            | attachments (WebP, ACL)                    |
+| Скриншоты                        | User / Admin    | attachments (WebP, ACL)                    |
 | Закрыть / reopen в окне TTL (7d) | User / Admin    | `…/close`, `…/reopen`                      |
 | Отметить жалобу рассмотренной    | Admin (бот/SQL) | `is_reviewed` + optional deactivate short  |
 | Анонс релиза                     | Admin           | см. [Notification](module_notification.md) |
@@ -338,6 +338,8 @@ priority_score = price_rub
 | Правило   | Значение                                             |
 |-----------|------------------------------------------------------|
 | Upload    | jpeg/png/webp/gif → **WebP q=70**, max side **1280** |
+|           | user: `POST …/tickets/{id}/attachments`;             |
+|           | admin: `POST …/admin/tickets/{id}/attachments`       |
 | Max raw   | **2 MB**                                             |
 | Max count | **3** / message                                      |
 | Guest     | вложения **запрещены**                               |
@@ -402,6 +404,7 @@ object_storage:
 | `DELETE` | `/support/tickets/{id}`                | 🔒                    | Soft-delete            |
 | `GET`    | `/support/admin/tickets`               | service               | Очередь                |
 | `POST`   | `/support/admin/tickets/{id}/messages` | service               | Ответ (+ internal)     |
+| `POST`   | `/support/admin/tickets/{id}/attachments` | service            | Upload к admin-сообщению |
 | `POST`   | `/support/admin/tickets/{id}/close`    | service               | Закрыть                |
 | `DELETE` | `/support/admin/tickets/{id}`          | service               | Hard delete            |
 | `GET`    | `/support/attachments/{id}`            | 🔒 / service          | ACL download           |
