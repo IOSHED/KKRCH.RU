@@ -5,9 +5,12 @@
 |                | Описание                                                                          |
 |----------------|-----------------------------------------------------------------------------------|
 | **Назначение** | Возвращает список доступных scope                                                 |
-| **Логика**     | 1. Возвращает scope пользователя/компании                                         |
+| **Логика**     | 1. Personal: `owner_user_id = me`.                                                |
+|                | 2. Company owner: все scope своих компаний.                                       |
+|                | 3. Участник: только scopes из `scope_members` (принятый invite).                  |
+|                | 4. Фильтры `owner_type` / `company_id` сужают выдачу.                             |
 | **Параметры**  | `owner_type:str?` - `personal` или `company`, `company_id:int?` - фильтр компании |
-| **Кеш**        | `scopes:list:{owner}:{v}:{filters_hash}`, TTL 60 сек (cache-aside)                |
+| **Кеш**        | `scopes:list:{user}:{v}:{filters_hash}`, TTL 60 сек (cache-aside)                 |
 
 ---
 
@@ -32,6 +35,14 @@
       "owner": {
         "type": "personal"
       },
+      "billing_plan": {
+        "id": "FREE",
+        "max_shorts": 10,
+        "max_subdomains": 0,
+        "max_seats": null,
+        "transfer_daily_bytes": 0,
+        "stats_click_retention_days": 30
+      },
       "created_at": "2024-06-01T12:00:00Z",
       "update_at": "2024-06-01T12:00:00Z"
     },
@@ -43,6 +54,14 @@
         "type": "company",
         "company_id": 1001
       },
+      "billing_plan": {
+        "id": "BUSINESS",
+        "max_shorts": 10000,
+        "max_subdomains": 10,
+        "max_seats": 10,
+        "transfer_daily_bytes": 104857600,
+        "stats_click_retention_days": 90
+      },
       "created_at": "2024-06-01T12:00:00Z",
       "update_at": "2024-06-01T12:00:00Z"
     }
@@ -50,4 +69,5 @@
 }
 ```
 
+`billing_plan` — тариф **billing owner** (личный owner или owner компании). Участник corp-scope видит лимиты владельца, а не своего личного плана.
 </details>

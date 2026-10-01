@@ -11,9 +11,9 @@
 
 Ключ **привязан к одному `scope_id`**. Чужие scope недоступны, даже при `*`.
 
-> Те же правила доступа (`permissions`) переиспользуются модулем совместной
-> работы (приглашения / роли участников scope) — один словарь прав, два
-> носителя: `api_keys` и будущие `scope_members`.
+> Те же правила доступа (`permissions`) переиспользуются модулем
+> [`company`](module_company.md) — один словарь прав, два носителя:
+> `api_keys` и `scope_members`.
 
 ---
 
@@ -45,7 +45,7 @@
 | Утечка ключа                             | `DELETE` → ключ сразу недействителен (PG); Redis-кеш инвалидируется best-effort |
 | Смена прав / имени                       | `PATCH` (secret не меняется; интеграции не перевыпускают ключ)                  |
 | Ротация secret                           | `DELETE` + `POST`                                                               |
-| Collaboration (позже)                    | Те же `permissions` у участника scope                                           |
+| Команда (company)                        | Те же `permissions` у `scope_members` — см. [module_company](module_company.md)  |
 
 ```mermaid
 sequenceDiagram

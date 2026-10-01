@@ -67,6 +67,7 @@
 | [**Feedback**](./module_feedback.md)                | In-app оценка полезности (1× на аккаунт)                 | реализовано     |
 | [**Transfer**](./module_transfer.md)                | Импорт / экспорт (миграция с Bitly и др.)                | документировано |
 | [**Payment**](../privat_http_api/module_payment.md) | ЮKassa: виджет, апгрейд, возвраты, cooling 7d, промокоды | документировано |
+| [**Company**](./module_company.md)                  | Команда: invites, permissions, SSE, soft-lock            | реализовано     |
 
 Внутри каждой папки `module_*/` — детальные файлы по эндпоинтам
 (метод, путь, тело, ответы, коды ошибок).

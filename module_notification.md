@@ -70,6 +70,7 @@ Email-доставки **не** пишутся в отдельную PG-табл
 | `subscription_ending` | предупреждение об окончании подписки |
 | `cooling_ending` | предупреждение об окончании cooling |
 | `stats_digest` | только для email-задач (inbox не создаётся) |
+| `company_invite` | приглашение в scope; payload: `invite_token`, `scope_id`, `scope_name`, `inviter_display_name` |
 
 Fan-out campaigns: батчи по **500** user_id; UNIQUE `(campaign_id, user_id)
 WHERE campaign_id IS NOT NULL`. Точечный `support_reply` — plain `INSERT`.
