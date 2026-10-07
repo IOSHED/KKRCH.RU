@@ -44,6 +44,7 @@ raw-события кликов (`link_click_events`) в пределах retent
 | ↳      | POST /transfer/{scope}/imports/preflight        | [ссылка](module_transfer/post-transfer-imports-preflight.md)      |
 | ↳      | GET /transfer/{scope}/imports/{job_id}          | [ссылка](module_transfer/get-transfer-imports-job_id.md)          |
 | ↳      | GET /transfer/{scope}/imports/{job_id}/events   | [ссылка](module_transfer/get-transfer-imports-job_id-events.md)   |
+| ↳      | GET /transfer/{scope}/imports/{job_id}/download | [ссылка](module_transfer/get-transfer-imports-job_id-download.md) |
 | ↳      | GET /transfer/{scope}/imports/{job_id}/errors   | [ссылка](module_transfer/get-transfer-imports-job_id-errors.md)   |
 | ↳      | DELETE /transfer/{scope}/jobs/{job_id}          | [ссылка](module_transfer/delete-transfer-jobs-job_id.md)          |
 
@@ -51,15 +52,16 @@ raw-события кликов (`link_click_events`) в пределах retent
 
 ## Use cases
 
-| Сценарий                              | Export                          | Import                                               |
-|---------------------------------------|---------------------------------|------------------------------------------------------|
-| Резервная копия scope перед миграцией | `full` + gzip                   | —                                                    |
-| Выгрузка в Excel / BI                 | `shorts`, format=`csv`          | —                                                    |
-| Выгрузка сырых кликов для DWH         | `clicks`, format=`ndjson`, gzip | —                                                    |
-| Массовое создание ссылок из таблицы   | —                               | `native` + column mapping                            |
-| Переезд с **Linkly**                  | —                               | `linkly_links` (+ опционально `linkly_clicks_pivot`) |
-| Переезд с **Bitly**                   | —                               | `bitly_links`                                        |
-| Восстановление после сбоя             | `full`                          | `native` (тот же формат)                             |
+| Сценарий                              | Export                          | Import                                                   |
+|---------------------------------------|---------------------------------|----------------------------------------------------------|
+| Резервная копия scope перед миграцией | `full` + gzip                   | —                                                        |
+| Выгрузка в Excel / BI                 | `shorts`, format=`csv`          | —                                                        |
+| Выгрузка сырых кликов для DWH         | `clicks`, format=`ndjson`, gzip | —                                                        |
+| Массовое создание ссылок из таблицы   | —                               | `native` + column mapping                                |
+| Список длинных URL без коротких имён  | —                               | CSV из колонки `url` / `long_url` или файл без заголовка |
+| Переезд с **Linkly**                  | —                               | `linkly_links` (+ опционально `linkly_clicks_pivot`)     |
+| Переезд с **Bitly**                   | —                               | `bitly_links`                                            |
+| Восстановление после сбоя             | `full`                          | `native` (тот же формат)                                 |
 
 ```mermaid
 sequenceDiagram
@@ -381,8 +383,9 @@ short_id,short_name,subdomain,description,folder_path,tags,redirect_type,is_capt
 
 | Колонка         | Обязательна при import | Описание                                                   |
 |-----------------|------------------------|------------------------------------------------------------|
-| `short_name`    | **да**                 | Уникальность в `(subdomain, short_name)`                   |
-| `targets_json`  | **да**                 | JSON-массив targets (см. POST /shorts bulk)                |
+| `short_name`    | нет                    | Пусто → сервер подставляет `{random_suffix=8}`             |
+| `long_url`      | **да**\*               | Один URL или несколько через `,` `;` `\|`                  |
+| `targets_json`  | нет\*                  | JSON-массив targets; вместо `long_url`                     |
 | `subdomain`     | нет                    | NULL → дефолтный домен                                     |
 | `description`   | нет                    |                                                            |
 | `folder_path`   | нет                    | `Marketing/2026` — создаёт папки при `create_folders=true` |
@@ -390,6 +393,15 @@ short_id,short_name,subdomain,description,folder_path,tags,redirect_type,is_capt
 | `redirect_type` | нет                    | default 302                                                |
 | `set_password`  | нет                    | plaintext; mutual exclusive с `has_password`               |
 | `short_id`      | нет                    | только export; при import игнорируется (новые id)          |
+
+\* Нужна колонка `long_url` / `url` / `destination` **или** `targets_json`.
+Файл без заголовка, где каждая строка начинается с `http://` или `https://`,
+тоже принимается: первая ячейка — длинный URL, `short_name` генерируется.
+
+После `completed`, если создана хотя бы одна ссылка, job пишет CSV
+`long_url,short_name,subdomain,public_url`. Скачивание —
+[`GET …/imports/{job_id}/download`](module_transfer/get-transfer-imports-job_id-download.md).
+`public_url` собирается из первого значения `short.base_domains`.
 
 Полный перечень колонок — `GET /transfer/formats?schema=native_shorts`.
 
@@ -696,5 +708,6 @@ sidecar `errors.ndjson.gz` с `{ row, kind, reason }` — `GET …/imports/{job_
 | `POST`   | `/transfer/{scope}/imports/preflight`         | 🔒   | Preflight лимитов (оценки JSON)   |
 | `GET`    | `/transfer/{scope}/imports/{job_id}`          | 🔒   | Snapshot статуса import           |
 | `GET`    | `/transfer/{scope}/imports/{job_id}/events`   | 🔒   | SSE прогресс import               |
+| `GET`    | `/transfer/{scope}/imports/{job_id}/download` | 🔒   | CSV созданных коротких ссылок     |
 | `GET`    | `/transfer/{scope}/imports/{job_id}/errors`   | 🔒   | Отчёт ошибок import (gzip NDJSON) |
 | `DELETE` | `/transfer/{scope}/jobs/{job_id}`             | 🔒   | Отменить job                      |

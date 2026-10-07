@@ -4,17 +4,17 @@
 
 |                | Описание                                                                                  |
 |----------------|-------------------------------------------------------------------------------------------|
-| **Назначение** | Скачивание NDJSON-отчёта об ошибках и предупреждениях import (gzip)                       |
-| **Логика**     | 1. Доступно после `status=completed` или `failed` (если успел накопить errors).            |
-|                | 2. Каждая строка — `{ "row", "kind", "reason", "raw_preview"? }`.                         |
-|                | 3. Stream gzip; формат фиксирован `application/x-ndjson`.                                   |
-| **Параметры**  | `scope_id:int`, `job_id:uuid` — path                                                      |
+| **Назначение** | Скачивание отчёта по строкам, которые import не создал |
+| **Логика**     | 1. Доступно, если у job есть файл ошибок. |
+|                | 2. CSV: колонки `line`, `reason`, `row` (`row` — исходная строка файла). |
+|                | 3. Старый sidecar остаётся gzip NDJSON (`application/x-ndjson`). |
+| **Параметры**  | `scope_id:int`, `job_id:uuid` — path |
 
 ---
 
 | Kind                    | Код | Описание                         |
 |-------------------------|-----|----------------------------------|
-|                         | 200 | Файл errors.ndjson.gz            |
+|                         | 200 | CSV ошибок или gzip NDJSON   |
 | auth_error              | 401 | Не авторизован                   |
 | job_not_found_error     | 404 | Job не найден                    |
 | errors_not_found_error  | 404 | Ошибок не было / файл expired    |
@@ -23,7 +23,29 @@
 ---
 
 <details open>
-<summary><b>Пример строк NDJSON (после распаковки gzip)</b></summary>
+<summary><b>Пример CSV</b></summary>
+
+```csv
+line,reason,row
+2,long_url указывает на домен сервиса,https://short.example/already
+8,Короткое имя «promo» уже есть в проекте — строка пропущена,promo,https://example.com/promo
+```
+
+</details>
+
+<details>
+<summary><b>Заголовки ответа (CSV)</b></summary>
+
+```http
+HTTP/1.1 200 OK
+Content-Type: text/csv; charset=utf-8
+Content-Disposition: attachment; filename="import-errors-660e8400-e29b-41d4-a716-446655440001.csv"
+```
+
+</details>
+
+<details>
+<summary><b>Старый gzip NDJSON</b></summary>
 
 ```json
 {"row":42,"kind":"short_name_conflict_error","reason":"slug 2ni5v уже занят","raw_preview":"41400247,Первая ссылка..."}

@@ -147,5 +147,8 @@
 | `default_redirect_type` | u16? | null | Default redirect (302/…) |
 | `match_by` | string? | null | Pivot: `full_url`, `external_id`, `short_name` |
 | `skip_deleted` | bool? | null | Bitly: пропускать deleted |
+| `defaults` | object? | null | Подставляется в пустые ячейки строки |
+
+`defaults`: `subdomain` или `custom_domain` (один хост), `folder_id` или `folder_name` (папка ищется по имени без учёта регистра, иначе создаётся), `redirect_type`, `tags`, `description`, `is_captcha`, `is_active`, `max_clicks`. Явное значение в CSV не перезаписывается.
 
 </details>
