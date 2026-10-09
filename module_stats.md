@@ -33,6 +33,7 @@ Frontend открывает дашборды и **поллит** детальн�
 | ↳      | GET /stats/{scope}/geo                      | [ссылка](module_stats/get-stats-geo.md)                        |
 | ↳      | GET /stats/{scope}/ranking                  | [ссылка](module_stats/get-stats-ranking.md)                    |
 | ↳      | GET /stats/{scope}/shorts/{short_id}        | [ссылка](module_stats/get-stats-short.md)                      |
+| ↳      | GET /stats/{scope}/utm                      | [ссылка](module_stats/get-stats-utm.md)                        |
 
 ---
 
@@ -72,6 +73,7 @@ refresh. Кеш длиннее, чем у series.
 | Pie / bar по разрезу | `GET .../breakdown` | device, geo, UTM, target, … |
 | Карта кликов | `GET .../geo` | страны / регионы РФ / hex |
 | Таблица топов | `GET .../ranking` | топ ссылок / campaigns / referrers |
+| Отчёт UTM | `GET .../utm` | заполненность, срезы, связки кампаний |
 | Карточка ссылки | `GET .../shorts/{id}` | lifetime agg + окно |
 
 Рекомендуемый интервал polling: **≥ 60 с** (см. конфиг
@@ -89,12 +91,14 @@ flowchart LR
         S[series]
         B[breakdown]
         R[ranking]
+        U[utm]
         D[shorts/id]
     end
     FE[Frontend] -->|open folder/link| O
     FE -->|charts refresh| S
     FE -->|pie refresh| B
     FE -->|tops refresh| R
+    FE -->|utm report| U
     FE -->|link detail| D
 ```
 
@@ -160,6 +164,7 @@ flowchart TD
 | **`GET .../breakdown`** | ✅ все `dimension` из [таблицы](#метрики-и-измерения) | ✅ agg-измерения: `os`, `device`, `browser`, `country`, `status_code`, `target`, `utm_*`, `ad_platform`, `referrer_domain`. `city`, `destination_host`, `hour` → `400` | ✅ |
 | **`GET .../ranking`** | ✅ все `by` + фильтры | ✅ `by=short` — окно из `stats_by_day`; `by=dimension` — lifetime maps (`window_merge=agg_lifetime`) | ✅ **`window_merge=full`**: per-short / per-dimension merge `stats_by_day` + raw |
 | **`GET .../shorts/{id}`** | ✅ `lifetime` (agg) + `window` (raw) | ✅ `lifetime` **всегда**; блок `window` либо урезан до agg day-maps, либо `window.coverage=agg` без raw-only срезов | ✅ |
+| **`GET .../utm`** | ✅ KPI размеченности, срезы, связки source×medium×campaign | ✅ срезы из lifetime-карт; `combos=[]`, `tagged_*`/`full_*` = null; фильтры → `400` | ✅ raw только по сохранившимся событиям (`window_exact=true`); фильтры → `400` |
 
 ### Что именно «краткая статистика» обещает навсегда
 
@@ -238,7 +243,7 @@ flowchart TD
 | Ручка | Окно |
 |-------|------|
 | `overview` | только `window=24h\|7d\|30d` (default `7d`); **всегда 200**, источник raw и/или agg |
-| `series` / `breakdown` / `ranking` / `shorts/{id}` | `from` + `to` (RFC3339 UTC) **или** `window` preset |
+| `series` / `breakdown` / `ranking` / `utm` / `shorts/{id}` | `from` + `to` (RFC3339 UTC) **или** `window` preset |
 
 Ограничения:
 
@@ -251,7 +256,7 @@ flowchart TD
 - запрос «глубже» retention: degrade в `agg` если выразим, иначе
   `stats_requires_raw_error`.
 
-### Фильтры (общие для series / breakdown / ranking)
+### Фильтры (общие для series / breakdown / ranking / utm)
 
 | Параметр | Тип | Описание |
 |----------|-----|----------|
@@ -304,7 +309,7 @@ Unique visitors **пока нет** (нет fingerprint cookie в raw) — не 
 - линия кликов / spend по дням;
 - pie device / os / browser;
 - bar top countries / cities;
-- bar / table UTM campaign × clicks × spend;
+- bar / table UTM: заполненность полей, связки source × medium × campaign (`GET .../utm`);
 - stacked targets (A/B);
 - referrer domains;
 - bot share (clicks vs bots);
@@ -344,6 +349,7 @@ Middleware на префиксе `/api/v1/stats` (отдельный от `Redir
 | `stats:overview:{scope}:{entity}:{window}:{filters_hash}` | 60–120 с | по TTL; watermark не критичен |
 | `stats:series:{…}` | 15–30 с | TTL + ETag |
 | `stats:breakdown:{…}` | 15–30 с | TTL + ETag |
+| `stats:utm:{…}` | 15–30 с | TTL (как breakdown) |
 | `stats:ranking:{…}` | 30–60 с | TTL |
 | `stats:short:{short_id}:{window}:{filters_hash}` | 15–30 с | TTL; drop при delete short |
 
@@ -408,6 +414,7 @@ stats_rate_limit:
 | `GET` | `/stats/{scope}/breakdown` | 🔒 Bearer \| X-Api-Key | ✅ | ✅ только agg-измерения |
 | `GET` | `/stats/{scope}/geo` | 🔒 Bearer \| X-Api-Key | ✅ | ✅ countries/regions из agg; hex — нет |
 | `GET` | `/stats/{scope}/ranking` | 🔒 Bearer \| X-Api-Key | ✅ | ⚠️ ограничено (см. матрицу) |
+| `GET` | `/stats/{scope}/utm` | 🔒 Bearer \| X-Api-Key | ✅ | ✅ срезы из карт; связки и tagged/full — только raw |
 | `GET` | `/stats/{scope}/shorts/{short_id}` | 🔒 Bearer \| X-Api-Key | ✅ | ✅ lifetime всегда; window → agg |
 
 Префикс API: `/api/v1` (как у остальных модулей).

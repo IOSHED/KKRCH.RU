@@ -550,6 +550,8 @@ Extractor `vkontakte` / `vk_ads` обязан читать известный н
 
 - **UTM-разрез** — фактические `utm_source`, `utm_medium`, `utm_campaign`,
   `utm_content`, `utm_term` после резолва; `ad_platform` пресета.
+  Сводка (заполненность, пять срезов, площадка, связки source × medium × campaign) —
+  [`GET /stats/{scope}/utm`](module_stats/get-stats-utm.md).
 
 - **Макросы платформы** — пойманные значения динамических переменных
   (`macro_values` JSONB) для отчётов по объявлениям/ключам/гео.
