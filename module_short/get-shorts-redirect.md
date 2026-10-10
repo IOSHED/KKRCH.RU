@@ -22,6 +22,7 @@
 |                | 4. Если ссылка требует капчу, но нет X-Captcha-Token → редирект на front с формой капчи |
 |                | 5. Выбирает eligible target по `weight`                                                 |
 |                | 6. Резолвит макросы/UTM через **per-platform** extractor (query + кастомные headers)     |
+|                | &nbsp; &nbsp; — query/header: UTF-8, иначе Windows-1251; конкретный `utm_*` клика важнее шаблона |
 |                | &nbsp; &nbsp; — отсутствие UTM/макросов **не ошибка**: в stats пишется `null`           |
 |                | 7. Возвращает 301/302/307/308 на финальный URL                                          |
 |                | 8. Публикует `ClickEvent` (`target_id`, nullable `utm_*`, `cpc`, `destination_url`)     |

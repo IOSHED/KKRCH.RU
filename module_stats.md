@@ -368,8 +368,9 @@ Middleware на префиксе `/api/v1/stats` (отдельный от `Redir
 
 **Rolling day-maps:** `clicks_by_day` и `spend_by_day` хранят **только последние 30
 календарных дней** (UTC); при каждом human-клике writer вызывает
-`trim_stats_day_map()`. Lifetime KPI (`total_clicks`, os/device/… maps, target/UTM)
-— бессрочно.
+`trim_stats_day_map()`. `stats_by_day` на каждый день кладёт срезы, включая
+все пять `utm_*` (source, medium, campaign, content, term). Lifetime KPI
+(`total_clicks`, os/device/… maps, target/UTM) — бессрочно.
 
 Writer (`record_click`) инкрементирует все maps для `is_bot = false`;
 `cpc_charged` → `spend_total` / `spend_by_day` / `spend_by_target`.
