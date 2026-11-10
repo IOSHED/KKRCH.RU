@@ -1,17 +1,24 @@
 # Auth Module
 
 Модуль для авторизации пользователей и управления токенами доступа.
-Аутентификация реализована через OAuth2:
+Один email (без учёта регистра) — один пользователь. Новый способ входа
+с той же почтой привязывается к уже существующему аккаунту.
 
-- [Яндекс ID](https://oauth.yandex.ru/)
-- [Google](https://developers.google.com/identity/protocols/oauth2)
-- MAX (мессенджер) — в разработке
-- Microsoft — в разработке
+Способы входа:
 
-> **Дорожная карта (не v1):** для полного соответствия
+- [Яндекс ID](https://oauth.yandex.ru/) и [Google](https://developers.google.com/identity/protocols/oauth2) —
+  authorization code
+- [VK ID](https://id.vk.com/) — authorization code + PKCE (`code_verifier`, `device_id`, `state`)
+- Email + 6-значный код — без пароля
+
+Провайдер обязан отдать email. Пустой email — `400`, аккаунт не создаётся.
+
+Microsoft в этой версии нет. Пароля нет.
+
+> **Дорожная карта:** для полного соответствия
 > [ФЗ-149](https://eais.rkn.gov.ru/docs/149.pdf) /
-> [ФЗ-152](https://72.rkn.gov.ru/p21978/p25026/p25030/) возможны SMS и пароль;
-> для корпоративного доступа — SSO. Сейчас вход **только через OAuth**.
+> [ФЗ-152](https://72.rkn.gov.ru/p21978/p25026/p25030/) возможны SMS;
+> для корпоративного доступа — SSO.
 
 ---
 
@@ -28,6 +35,8 @@
 | 📋     | Сводная таблица эндпоинтов            | [ссылка](#сводная-таблица-эндпоинтов)                    |
 | 🔗     | Эндпоинты                             | [ссылка](#сводная-таблица-эндпоинтов)                    |
 | ↳      | POST /auth/oauth_login                | [ссылка](module_auth/post-auth-oauth_login.md)           |
+| ↳      | POST /auth/email/code                 | [ссылка](module_auth/post-auth-email-code.md)            |
+| ↳      | POST /auth/email/verify               | [ссылка](module_auth/post-auth-email-verify.md)          |
 | ↳      | POST /auth/refresh                    | [ссылка](module_auth/post-auth-refresh.md)               |
 | ↳      | GET /auth/subscription_plans          | [ссылка](module_auth/get-auth-subscription_plans.md)     |
 | ↳      | GET /auth/profile                     | [ссылка](module_auth/get-auth-profile.md)                |
@@ -130,17 +139,23 @@ sequenceDiagram
 | Таблица              | Назначение                                                                                                                                                                                     |
 |----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `users`              | Профиль пользователя (id, email, display_name, subscription, roles; billing: `subscription_ends_at`, `cooling_until`, `cooling_enforced_at` — [Payment](../privat_http_api/module_payment.md)) |
-| `oauth_accounts`     | OAuth-провайдер пользователя (provider, user_id) — один аккаунт, один провайдер                                                                                                                |
+| `oauth_accounts`     | Способы входа пользователя. Уникальна пара `(provider, provider_user_id)`. У одного `user_id` может быть несколько провайдеров: `yandex`, `google`, `vk`, `email`                              |
 | `subscription_plans` | Справочник тарифных планов с лимитами; `is_view` — видимость в GET `/auth/subscription_plans`                                                                                                  |
 | `sessions`           | Аудит сессий, ревокация, revocation_reason                                                                                                                                                     |
 
 ### Redis — оперативный кеш токенов
 
-| Ключ                      | Содержимое                                                              | TTL         |
-|---------------------------|-------------------------------------------------------------------------|-------------|
-| `access:{token_id}`       | AccessTokenEntry (user_id, session_id, subscription, roles)             | acces_ttl   |
-| `refresh:{token_id}`      | RefreshTokenEntry (user_id, session_id, fingerprint_hash, subscription) | refresh_ttl |
-| `refresh_index:{user_id}` | SET всех refresh-токенов пользователя                                   | —           |
+| Ключ                              | Содержимое                                                              | TTL              |
+|-----------------------------------|-------------------------------------------------------------------------|------------------|
+| `access:{token_id}`               | AccessTokenEntry (user_id, session_id, subscription, roles)             | acces_ttl        |
+| `refresh:{token_id}`              | RefreshTokenEntry (user_id, session_id, fingerprint_hash, subscription) | refresh_ttl      |
+| `refresh_index:{user_id}`         | SET всех refresh-токенов пользователя                                   | —                |
+| `auth:email_code:{sha256(email)}` | Хеш 6-значного кода                                                     | `email_code.ttl` |
+| `auth:email_send:{sha256(email)}` | Флаг «письмо уже отправлено», повтор молчит                             | `resend_after`   |
+
+Код письма пишется в Redis сразу (не через deferred pipeline): он должен
+существовать до отправки письма и не связан с транзакцией Postgres.
+В Redis лежит SHA-256 кода, не сам код.
 
 > `subscription` и `roles` кешируются в access token при логине — auth middleware
 
@@ -194,20 +209,47 @@ auth:
   google:
     client_id: "..."
     client_secret: "..."
+
+  vk:
+    client_id: ""          # id приложения VK ID
+    service_token: ""      # сервисный ключ, если приложение конфиденциальное
+
+  email_code:
+    ttl: 10m
+    resend_after: 60s
+    max_attempts: 5
 ```
+
+Пустой `vk.client_id` выключает VK ID: запрос получает `400 validation_error`.
+
+Переменные окружения (префикс `APP__`, вложенность через `__`):
+
+| Переменная                            | Назначение           |
+|---------------------------------------|----------------------|
+| `APP__AUTH__VK__CLIENT_ID`            | ID приложения VK ID  |
+| `APP__AUTH__VK__SERVICE_TOKEN`        | Сервисный ключ VK ID |
+| `APP__AUTH__EMAIL_CODE__TTL`          | Например `10m`       |
+| `APP__AUTH__EMAIL_CODE__RESEND_AFTER` | Например `60s`       |
+| `APP__AUTH__EMAIL_CODE__MAX_ATTEMPTS` | Например `5`         |
+
+Почта с кодом уходит сразу через `mail.smtp` / `mail.file`, не через очередь
+`mail-worker`. При выключенной почте (`mail.enabled: false`) ручка всё равно
+отвечает `200`, но письма нет.
 
 ---
 
 ## Сводная таблица эндпоинтов
 
-| Метод    | Путь                       | Авторизация | Описание                       |
-|----------|----------------------------|-------------|--------------------------------|
-| `POST`   | `/auth/oauth_login`        | —           | Вход / регистрация через OAuth |
-| `POST`   | `/auth/refresh`            | —           | Обновление пары токенов        |
-| `GET`    | `/auth/subscription_plans` | —           | Справочник тарифных планов     |
-| `GET`    | `/auth/profile`            | 🔒 Bearer   | Получение профиля              |
-| `PATCH`  | `/auth/profile`            | 🔒 Bearer   | Обновление профиля             |
-| `GET`    | `/auth/sessions`           | 🔒 Bearer   | Список активных сессий         |
-| `DELETE` | `/auth/sessions/{id}`      | 🔒 Bearer   | Отзыв конкретной сессии        |
-| `POST`   | `/auth/logout`             | 🔒 Bearer   | Выход (текущая сессия)         |
-| `POST`   | `/auth/logout_all`         | 🔒 Bearer   | Выход (все сессии)             |
+| Метод    | Путь                       | Авторизация | Описание                                                                         |
+|----------|----------------------------|-------------|----------------------------------------------------------------------------------|
+| `POST`   | `/auth/oauth_login`        | —           | Яндекс, Google, VK ID. Тот же email привязывает провайдера. Пустой email — `400` |
+| `POST`   | `/auth/email/code`         | —           | Письмо с 6-значным кодом. Всегда `200`, если email корректен                     |
+| `POST`   | `/auth/email/verify`       | —           | Вход по коду из письма                                                           |
+| `POST`   | `/auth/refresh`            | —           | Обновление пары токенов                                                          |
+| `GET`    | `/auth/subscription_plans` | —           | Справочник тарифных планов                                                       |
+| `GET`    | `/auth/profile`            | 🔒 Bearer   | Получение профиля                                                                |
+| `PATCH`  | `/auth/profile`            | 🔒 Bearer   | Обновление профиля                                                               |
+| `GET`    | `/auth/sessions`           | 🔒 Bearer   | Список активных сессий                                                           |
+| `DELETE` | `/auth/sessions/{id}`      | 🔒 Bearer   | Отзыв конкретной сессии                                                          |
+| `POST`   | `/auth/logout`             | 🔒 Bearer   | Выход (текущая сессия)                                                           |
+| `POST`   | `/auth/logout_all`         | 🔒 Bearer   | Выход (все сессии)                                                               |
