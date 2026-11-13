@@ -8,7 +8,7 @@
 | **Логика**     | 1. Сервер обменивает authorization code на access_token провайдера.           |
 |                | 2. Получает профиль (email, name, id). Для VK ID нужны `code_verifier`, `device_id`, `state`. |
 |                | 3. Связка provider+id уже есть — сессия этого пользователя (`200`).           |
-|                | 4. Email свободен — новый пользователь (`201`). Email уже есть у другого входа — провайдер привязывается к тому же аккаунту (`200`). |
+|                | 4. Email свободен — новый пользователь (`201`), `users.locale` берётся из `Accept-Language` запроса (`ru`/`en`/`de`/`fr`, иначе `en`). Уже существующий email — провайдер привязывается к тому же аккаунту (`200`), `locale` не меняется. |
 |                | 5. Email пустой — `400`, аккаунт не создаётся.                                |
 |                | 6. Сессия: Postgres + access/refresh в Redis.                                 |
 | **Заголовки**  | `User-Agent`, `X-Fingerprint` (опционально)                                   |
@@ -88,6 +88,7 @@ sequenceDiagram
     "auth_provider": "YANDEX",
     "email": "user@example.com",
     "display_name": "John",
+    "locale": "en",
     "subscription": "FREE",
     "roles": [
       "RoleFromCompany"

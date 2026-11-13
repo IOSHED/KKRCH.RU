@@ -36,6 +36,7 @@
     "auth_provider": "YANDEX",
     "email": "user@example.com",
     "display_name": "John",
+    "locale": "en",
     "subscription": "FREE",
     "subscription_ends_at": "2026-09-01T00:00:00Z",
     "cooling_until": "2026-09-08T00:00:00Z",

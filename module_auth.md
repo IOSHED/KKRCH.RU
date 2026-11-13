@@ -138,7 +138,7 @@ sequenceDiagram
 
 | Таблица              | Назначение                                                                                                                                                                                     |
 |----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `users`              | Профиль пользователя (id, email, display_name, subscription, roles; billing: `subscription_ends_at`, `cooling_until`, `cooling_enforced_at` — [Payment](../privat_http_api/module_payment.md)) |
+| `users`              | Профиль пользователя (id, email, display_name, `locale` писем `ru`/`en`/`de`/`fr`, subscription, roles; billing: `subscription_ends_at`, `cooling_until`, `cooling_enforced_at` — [Payment](../privat_http_api/module_payment.md)). `locale` задаётся при регистрации из `Accept-Language` и меняется через `PATCH /auth/profile`. Тексты HTTP-ответов от `locale` не зависят: они по `Accept-Language` запроса. |
 | `oauth_accounts`     | Способы входа пользователя. Уникальна пара `(provider, provider_user_id)`. У одного `user_id` может быть несколько провайдеров: `yandex`, `google`, `vk`, `email`                              |
 | `subscription_plans` | Справочник тарифных планов с лимитами; `is_view` — видимость в GET `/auth/subscription_plans`                                                                                                  |
 | `sessions`           | Аудит сессий, ревокация, revocation_reason                                                                                                                                                     |
