@@ -86,4 +86,5 @@
 
 `billing_owner` — профиль того же пользователя (имя и email для UI «владелец проекта»; у personal scope — владелец
 scope).
+
 </details>
