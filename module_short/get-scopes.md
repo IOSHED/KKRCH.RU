@@ -9,6 +9,8 @@
 |                | 2. Company owner: все scope своих компаний.                                       |
 |                | 3. Участник: только scopes из `scope_members` (принятый invite).                  |
 |                | 4. Фильтры `owner_type` / `company_id` сужают выдачу.                             |
+|                | 5. В каждом scope: `billing_plan` и `billing_owner` billing owner (личный         |
+|                | &nbsp;&nbsp;&nbsp;владелец или `companies.owner_user_id`).                        |
 | **Параметры**  | `owner_type:str?` - `personal` или `company`, `company_id:int?` - фильтр компании |
 | **Кеш**        | `scopes:list:{user}:{v}:{filters_hash}`, TTL 60 сек (cache-aside)                 |
 
@@ -35,6 +37,11 @@
       "owner": {
         "type": "personal"
       },
+      "billing_owner": {
+        "user_id": "550e8400-e29b-41d4-a716-446655440000",
+        "email": "me@example.com",
+        "display_name": "Анна"
+      },
       "billing_plan": {
         "id": "FREE",
         "max_shorts": 10,
@@ -54,6 +61,11 @@
         "type": "company",
         "company_id": 1001
       },
+      "billing_owner": {
+        "user_id": "550e8400-e29b-41d4-a716-446655440000",
+        "email": "owner@example.com",
+        "display_name": "Иван"
+      },
       "billing_plan": {
         "id": "BUSINESS",
         "max_shorts": 10000,
@@ -69,5 +81,9 @@
 }
 ```
 
-`billing_plan` — тариф **billing owner** (личный owner или owner компании). Участник corp-scope видит лимиты владельца, а не своего личного плана.
+`billing_plan` — тариф **billing owner** (личный owner или owner компании). Участник corp-scope видит лимиты владельца,
+а не своего личного плана.
+
+`billing_owner` — профиль того же пользователя (имя и email для UI «владелец проекта»; у personal scope — владелец
+scope).
 </details>
