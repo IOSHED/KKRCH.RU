@@ -42,7 +42,7 @@ company-подписки и отдельного company API-token нет.
 |-----------------------------------------------|---------------------------------------------------------------------|
 | Владелец зовёт коллегу в проект               | `POST …/invites` → in-app + email с кнопкой «Подключиться»          |
 | Коллега принимает                             | `POST /company/invites/{token}/accept` → scope в списке с corp      |
-| Email не зарегистрирован                      | Ответ как при успехе; **никаких** side-effects (anti-enumeration)   |
+| Email не зарегистрирован                      | Invite в БД + email; in-app после регистрации через accept        |
 | Первый invite в personal scope                | Авто: создать `companies` → scope → `owner.type=company`            |
 | Ограничить права редактора                    | `permissions` как у API key (`shorts:write`, `stats:read`, …)       |
 | Два человека в explorer                       | SSE: чужие create/update/delete shorts/folders + actor              |
@@ -58,12 +58,12 @@ sequenceDiagram
     participant Invitee as Приглашённый
     Owner ->> API: POST /company/scopes/{id}/invites {email, permissions}
     API ->> PG: find user by email
-    alt email неизвестен
-        API -->> Owner: 201 {ok:true} (без side-effects)
-    else пользователь есть
-        API ->> PG: ensure company + INSERT invite + inbox
-        API ->> Mail: enqueue company_invite email
-        API -->> Owner: 201 {ok:true}
+    API ->> PG: ensure company + INSERT invite
+    opt пользователь есть
+        API ->> PG: in-app company_invite
+    end
+    API ->> Mail: enqueue company_invite email
+    API -->> Owner: 201 {ok:true}
         Invitee ->> API: POST /company/invites/{token}/accept
         API ->> PG: INSERT scope_members, mark invite accepted
         API -->> Invitee: 200 {scope_id, company_id, permissions}
@@ -174,22 +174,18 @@ used_seats = 1  -- владелец
 
 ---
 
-## Приглашения (anti-enumeration)
+## Приглашения
 
 `POST /company/scopes/{scope_id}/invites`:
 
 1. Auth: owner scope/company.
 2. Валидация email + permissions.
-3. Проверка seats / self-invite / уже member.
-4. Lookup user by email:
-   - **нет пользователя** → `201 { "ok": true }` **без** INSERT / mail /
-     notification / company convert.
-   - **есть** → ensure company, INSERT `scope_invites`, in-app
-     `kind=company_invite`, email `company_invite`, ответ тот же
-     `201 { "ok": true }`.
+3. Проверка seats / self-invite / уже member / pending invite.
+4. ensure company (при первом invite), INSERT `scope_invites`.
+5. Email `company_invite` в `mail:queue` (если `invite_email_enabled`).
+6. In-app `kind=company_invite` — **только** если аккаунт с таким email уже есть.
 
-Тело успеха **одинаковое** в обоих ветках. Pending invite появляется в
-`GET …/members` только если был реальный INSERT.
+Ответ: `201 { "ok": true }`.
 
 Accept: Bearer пользователя, чей **email профиля** совпадает с invite
 (case-insensitive). Иначе `403 invite_email_mismatch_error`.
@@ -284,8 +280,7 @@ Folders **без** lock в v1 (только short).
 |---------|--------------|
 | Нет company billing | лимиты = подписка owner |
 | Гейт `max_seats > 0` | без ветвления is_corporate |
-| Invite только существующим user | нет pending-orphan / mail на пустоту |
-| Одинаковый 201 на invite | anti-enumeration без shadow-rows |
+| Email invite без аккаунта | invite в PG + письмо; accept после регистрации |
 | Member только invited scopes | простая ACL, без matrix company→all scopes |
 | Redis Pub/Sub SSE | без отдельного fan-out сервиса |
 | Soft-lock только Redis | нет PG строк, TTL самоочистка |

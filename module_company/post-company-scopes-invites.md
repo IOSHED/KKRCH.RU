@@ -10,10 +10,8 @@
 |                | 3. Валидирует `email`, `permissions` (как API keys).                     |
 |                | 4. Self-invite / уже member / pending на этот email → 409.               |
 |                | 5. Seats компании исчерпаны → 402 `seats_limit_error`.                   |
-|                | 6. Lookup user by email (case-insensitive):                              |
-|                | &nbsp;&nbsp;&nbsp;• **нет** → `201 {"ok":true}` без side-effects;        |
-|                | &nbsp;&nbsp;&nbsp;• **есть** → ensure company (авто-convert personal),   |
-|                | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INSERT invite, in-app + email, тот же 201. |
+|                | 6. ensure company, INSERT invite; email всегда (если включён канал);    |
+|                | &nbsp;&nbsp;&nbsp;in-app — только если аккаунт с этим email уже есть.   |
 | **Параметры**  | `scope_id:int` — path                                                    |
 | **Auth**       | 🔒 Bearer owner                                                          |
 
@@ -21,7 +19,7 @@
 
 | Kind                       | Код | Описание                                      |
 |----------------------------|-----|-----------------------------------------------|
-|                            | 201 | Принято (одинаково при unknown email)         |
+|                            | 201 | Принято                                       |
 | validation_error           | 400 | Некорректные `email` / `permissions`          |
 | auth_error                 | 401 | Не авторизован                                |
 | seats_not_available_error  | 402 | У тарифа нет seats (`max_seats` null/0)       |
@@ -73,14 +71,12 @@ sequenceDiagram
     participant PG as Postgres
     O ->> S: POST invites {email, permissions}
     S ->> PG: assert owner + seats
-    S ->> PG: find user by email
-    alt unknown email
-        S -->> O: 201 {ok:true}
-    else known
-        S ->> PG: ensure company + INSERT scope_invites
-        S ->> S: inbox + mail enqueue
-        S -->> O: 201 {ok:true}
+    S ->> PG: ensure company + INSERT scope_invites
+    opt аккаунт есть
+        S ->> S: in-app company_invite
     end
+    S ->> S: mail enqueue
+    S -->> O: 201 {ok:true}
 ```
 
 </details>
